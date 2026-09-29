@@ -6,7 +6,7 @@
   "scripts": {
   "start": "node app.js",
   "dev": "nodemon app.js",
-  "test-db": "node test-conexion-inicial.js"
+  "test-db": "node test-connection.js"
   },
   "keywords": [],
   "author": "",
