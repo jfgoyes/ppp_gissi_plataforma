@@ -1,43 +1,31 @@
 const ColorModel = require('../models/colorModel');
+const ApiError = require('../utils/ApiError');
+const validarId = require('../utils/validarId');
 
 const ColorController = {
-  listar: async (req, res) => {
+  listar: async (req, res, next) => {
     try {
       const colores = await ColorModel.obtenerTodos();
       res.json({ ok: true, total: colores.length, data: colores });
     } catch (error) {
       console.error('Error al listar colores:', error.message);
-      res.status(500).json({
-        ok: false,
-        error: 'Error al obtener los colores',
-        detalle: error.message
-      });
+      next(new ApiError(500, 'Error al obtener los colores'));
     }
   },
-  obtenerPorId: async (req, res) => {
+
+  obtenerPorId: async (req, res, next) => {
     try {
-      const { id } = req.params;
-      if (!/^\d+$/.test(id)) {
-        return res.status(400).json({
-          ok: false,
-          error: 'El ID debe ser un número entero positivo'
-        });
-      }
+      const id = validarId(req.params.id); // Lanza ApiError(400) si el ID es inválido
       const color = await ColorModel.obtenerPorId(id);
+
       if (!color) {
-        return res.status(404).json({
-          ok: false,
-          error: `No se encontró un color con ID ${id}`
-        });
+        throw new ApiError(404, `No se encontró un color con ID ${id}`);
       }
+
       res.json({ ok: true, data: color });
     } catch (error) {
       console.error('Error al obtener color por ID:', error.message);
-      res.status(500).json({
-        ok: false,
-        error: 'Error al obtener el color',
-        detalle: error.message
-      });
+      next(error);
     }
   }
 };

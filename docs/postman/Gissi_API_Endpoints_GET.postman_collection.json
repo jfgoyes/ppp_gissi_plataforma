@@ -15,7 +15,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
             }
           },
           "response": []
@@ -26,7 +33,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/productos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
             }
           },
           "response": []
@@ -42,7 +57,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/categorias",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categorias"
+              ]
             }
           },
           "response": []
@@ -53,7 +75,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/categorias/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categorias",
+                "1"
+              ]
             }
           },
           "response": []
@@ -69,7 +99,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/tallas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tallas"
+              ]
             }
           },
           "response": []
@@ -80,7 +117,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/tallas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tallas",
+                "1"
+              ]
             }
           },
           "response": []
@@ -96,7 +141,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/colores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "colores"
+              ]
             }
           },
           "response": []
@@ -107,7 +159,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/colores/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "colores",
+                "1"
+              ]
             }
           },
           "response": []
@@ -123,7 +183,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
             }
           },
           "response": []
@@ -134,7 +201,114 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/clientes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Errores y Validaciones",
+      "item": [
+        {
+          "name": "400 - ID no numérico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/abc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "400 - ID negativo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/-5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "-5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "404 - Producto no encontrado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "404 - Ruta no encontrada",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/inexistente",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "inexistente"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "200 - Caso correcto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
             }
           },
           "response": []

@@ -1,43 +1,31 @@
 const ProductoModel = require('../models/productoModel');
+const ApiError = require('../utils/ApiError');
+const validarId = require('../utils/validarId');
 
 const ProductoController = {
-  listar: async (req, res) => {
+  listar: async (req, res, next) => {
     try {
       const productos = await ProductoModel.obtenerTodos();
       res.json({ ok: true, total: productos.length, data: productos });
     } catch (error) {
       console.error('Error al listar productos:', error.message);
-      res.status(500).json({
-        ok: false,
-        error: 'Error al obtener los productos',
-        detalle: error.message
-      });
+      next(new ApiError(500, 'Error al obtener los productos'));
     }
   },
-  obtenerPorId: async (req, res) => {
+
+  obtenerPorId: async (req, res, next) => {
     try {
-      const { id } = req.params;
-      if (!/^\d+$/.test(id)) {
-        return res.status(400).json({
-          ok: false,
-          error: 'El ID debe ser un número entero positivo'
-        });
-      }
+      const id = validarId(req.params.id); // Lanza 400 si el ID es inválido
       const producto = await ProductoModel.obtenerPorId(id);
+
       if (!producto) {
-        return res.status(404).json({
-          ok: false,
-          error: `No se encontró un producto con ID ${id}`
-        });
+        throw new ApiError(404, `No se encontró un producto con ID ${id}`);
       }
+
       res.json({ ok: true, data: producto });
     } catch (error) {
       console.error('Error al obtener producto por ID:', error.message);
-      res.status(500).json({
-        ok: false,
-        error: 'Error al obtener el producto',
-        detalle: error.message
-      });
+      next(error);
     }
   }
 };

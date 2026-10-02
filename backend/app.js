@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+// Middlewares de error personalizados
+const { notFound, errorHandler } = require('./middlewares/errorHandler');
+
 const app = express();
 
 // Middlewares globales
@@ -38,10 +41,13 @@ app.get('/', (req, res) => {
   });
 });
 
-// Manejo global de rutas no encontradas (404)
-app.use((req, res) => {
-  res.status(404).json({ error: 'Ruta no encontrada' });
-});
+// Manejo de errores
+
+// Middleware para rutas no encontradas (404)
+app.use(notFound);
+
+// Middleware global de manejo de errores (400, 404, 500)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
