@@ -58,15 +58,291 @@
     <!-- Sección: Inicio / Hero (contenedor vacío pendiente de contenido) -->
     <section class="hero" id="inicio">
       <!-- Contenedor del hero pendiente de contenido -->
-      <!-- El hero se completará el miércoles 7 con el título y botones principales -->
+      <!-- El hero se completará el jueves 8 con el título y botones principales -->
     </section>
 
-    <!-- Sección: Catálogo de productos (contenedor vacío para carga dinámica) -->
+    <!-- ============================================================
+         Sección: Catálogo de productos
+         Grid responsivo con tarjetas de producto estáticas
+         ============================================================ -->
     <section class="catalogo" id="catalogo">
       <div class="catalogo__container">
-        <!-- Contenedor del grid de productos pendiente de contenido dinámico -->
-        <!-- El grid de tarjetas de producto se maquetará el miércoles 7 -->
-        <!-- Las clases .product-card ya están preparadas en styles.css -->
+
+        <!-- Encabezado del catálogo -->
+        <div class="catalogo__header">
+          <p class="section__label">— Nuestro Catálogo —</p>
+          <h2 class="section__title">Productos Gissi</h2>
+          <p class="section__description">
+            Explora nuestra selección de prendas textiles: escolares, de trabajo y deportivas.
+          </p>
+        </div>
+
+        <!-- Grid de productos -->
+        <div class="catalogo__grid">
+
+          <!-- Producto 1: Uniforme Escolar Primaria -->
+          <article class="product-card">
+            <div class="product-card__badge product-card__badge--new">Nuevo</div>
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Escolar</span>
+              <h3 class="product-card__name">Uniforme Escolar Primaria</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+                <span>(128)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla M</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Azul</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$25.50</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 2: Overol Industrial -->
+          <article class="product-card">
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Trabajo</span>
+              <h3 class="product-card__name">Overol Industrial</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <span>(95)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla L</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Azul</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$45.00</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 3: Camiseta Deportiva -->
+          <article class="product-card">
+            <div class="product-card__badge product-card__badge--sale">-20%</div>
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Deportivo</span>
+              <h3 class="product-card__name">Camiseta Deportiva</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-regular fa-star"></i>
+                <span>(73)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla M</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Azul</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$14.40</span>
+                <span class="product-card__price-old">$18.00</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 4: Pantalón Escolar -->
+          <article class="product-card">
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Escolar</span>
+              <h3 class="product-card__name">Pantalón Escolar</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <span>(204)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla L</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Negro</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$15.50</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 5: Chaqueta de Seguridad -->
+          <article class="product-card">
+            <div class="product-card__badge product-card__badge--new">Nuevo</div>
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Trabajo</span>
+              <h3 class="product-card__name">Chaqueta de Seguridad</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+                <span>(61)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla XL</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Verde</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$55.00</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 6: Sudadera Deportiva -->
+          <article class="product-card">
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Deportivo</span>
+              <h3 class="product-card__name">Sudadera Deportiva</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <span>(89)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla L</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Gris</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$35.00</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 7: Camisa de Trabajo -->
+          <article class="product-card">
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Trabajo</span>
+              <h3 class="product-card__name">Camisa de Trabajo</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-regular fa-star"></i>
+                <span>(47)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla L</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Blanco</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$22.00</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+          <!-- Producto 8: Falda Escolar -->
+          <article class="product-card">
+            <div class="product-card__badge product-card__badge--sale">-15%</div>
+            <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="product-card__image">
+              <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__category">Escolar</span>
+              <h3 class="product-card__name">Falda Escolar</h3>
+              <div class="product-card__rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+                <span>(112)</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-item"><i class="fa-solid fa-ruler"></i> Talla M</span>
+                <span class="product-card__meta-item"><i class="fa-solid fa-palette"></i> Azul</span>
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price-current">$11.90</span>
+                <span class="product-card__price-old">$14.00</span>
+              </div>
+              <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+                <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+              </button>
+            </div>
+          </article>
+
+        </div>
       </div>
     </section>
 

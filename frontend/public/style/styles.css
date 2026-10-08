@@ -11,6 +11,7 @@
    7. Footer
    8. Animaciones
    9. Media queries (base responsiva)
+   10. Grid de productos responsivo
    ============================================================ */
 
 
@@ -283,11 +284,6 @@ button {
 
 /* ============================================================
    6. MAIN — SECCIONES BASE
-   ============================================================
-   Las secciones del main están vacías en esta fase.
-   Se dejan preparadas con padding uniforme y contenedores
-   centrados para cuando se inserten contenidos en días
-   posteriores (miércoles 7, jueves 8).
    ============================================================ */
 
 /* Sección Hero (vacía en esta fase) */
@@ -306,7 +302,7 @@ button {
   background-attachment: fixed;
 }
 
-/* Sección Catálogo (vacía, contenedor preparado para el grid) */
+/* Sección Catálogo */
 .catalogo {
   padding: var(--section-padding);
   background-color: var(--color-bg);
@@ -316,6 +312,18 @@ button {
   max-width: var(--container-width);
   margin: 0 auto;
   padding: 0 1.5rem;
+}
+
+/* Encabezado del catálogo */
+.catalogo__header {
+  max-width: 700px;
+  margin: 0 auto 3rem auto;
+  text-align: center;
+}
+
+.catalogo__header .section__description {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Sección Contacto (vacía en esta fase) */
@@ -462,13 +470,8 @@ button {
   }
 }
 
-
 /* ============================================================
    9. MEDIA QUERIES (BASE RESPONSIVA)
-   ============================================================
-   Base preparada para móvil y tablet. El menú hamburguesa
-   y el grid de productos se implementarán el miércoles 7
-   y viernes 9 respectivamente.
    ============================================================ */
 @media (max-width: 992px) {
   .section__title {
@@ -557,5 +560,217 @@ button {
   .btn {
     padding: 0.65rem 1.25rem;
     font-size: 0.875rem;
+  }
+}
+
+/* ============================================================
+   10. GRID DE PRODUCTOS RESPONSIVO
+   ============================================================ */
+
+/* Grid principal */
+.catalogo__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+/* Tarjeta de producto (bloque) */
+.product-card {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-5px);
+}
+
+/* Badge (Nuevo / Oferta) */
+.product-card__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.product-card__badge--new {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.product-card__badge--sale {
+  background-color: var(--color-danger);
+  color: #ffffff;
+}
+
+/* Botón de favoritos */
+.product-card__wishlist {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 35px;
+  height: 35px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  color: var(--color-secondary);
+  transition: var(--transition);
+}
+
+.product-card__wishlist:hover {
+  color: var(--color-danger);
+  transform: scale(1.1);
+}
+
+/* Imagen */
+.product-card__image {
+  height: 250px;
+  overflow: hidden;
+  background-color: var(--color-bg-alt);
+}
+
+.product-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.product-card:hover .product-card__img {
+  transform: scale(1.05);
+}
+
+/* Cuerpo */
+.product-card__body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-card__category {
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.product-card__name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+  line-height: 1.3;
+}
+
+/* Rating */
+.product-card__rating {
+  color: #fbbf24;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.product-card__rating span {
+  color: var(--color-secondary);
+  margin-left: 5px;
+}
+
+/* Meta: talla y color */
+.product-card__meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--color-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.product-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Precio */
+.product-card__price {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  margin-top: auto;
+}
+
+.product-card__price-current {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--color-primary);
+}
+
+.product-card__price-old {
+  text-decoration: line-through;
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+}
+
+/* Botón agregar al carrito */
+.product-card__btn {
+  width: 100%;
+  margin-top: auto;
+}
+
+/* ============================================================
+   11. MEDIA QUERIES DEL GRID DE PRODUCTOS
+   ============================================================ */
+
+/* Tablet: 2 columnas */
+@media (max-width: 992px) {
+  .catalogo__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Móvil: 1 columna */
+@media (max-width: 768px) {
+  .catalogo__grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .product-card__image {
+    height: 220px;
+  }
+}
+
+/* Móvil pequeño: ajustes de padding */
+@media (max-width: 480px) {
+  .product-card__body {
+    padding: 1.25rem;
+  }
+
+  .product-card__name {
+    font-size: 1rem;
+  }
+
+  .product-card__price-current {
+    font-size: 1.05rem;
   }
 }
