@@ -21,32 +21,66 @@
 <body>
 
   <!-- ============================================================
-       HEADER — Logo, nombre Gissi y menú de navegación básico
+       HEADER — Logo, nombre Gissi y menú de navegación
        ============================================================ -->
   <header class="navbar" id="navbar">
     <div class="navbar__container">
 
       <!-- Logo y nombre de la marca -->
-      <a href="index.html" class="navbar__logo" aria-label="Gissi - Inicio">
+      <a href="#hero" class="navbar__logo" aria-label="Gissi - Inicio">
         <span class="navbar__logo-main">GISSI</span>
         <span class="navbar__logo-accent">®</span>
       </a>
 
-      <!-- Menú de navegación básico -->
+      <!-- Overlay para cerrar menú en móvil -->
+      <div class="navbar__overlay" id="nav-overlay"></div>
+
+      <!-- Menú de navegación completo -->
       <nav class="navbar__menu" id="nav-menu" aria-label="Navegación principal">
         <ul class="navbar__list">
           <li class="navbar__item">
-            <a href="#inicio" class="navbar__link active">Inicio</a>
+            <a href="#hero" class="navbar__link active">Inicio</a>
           </li>
           <li class="navbar__item">
-            <a href="#catalogo" class="navbar__link">Catálogo</a>
+            <a href="#about" class="navbar__link">Nosotros</a>
+          </li>
+          <li class="navbar__item dropdown" id="dropdown-colecciones">
+            <a href="#categories" class="navbar__link">
+              Colecciones <i class="fa-solid fa-chevron-down navbar__chevron"></i>
+            </a>
+            <ul class="dropdown__menu">
+              <li><a href="#sport">Gissi Escolar</a></li>
+              <li><a href="#tradicional">Gissi Trabajo</a></li>
+              <li><a href="#work">Gissi Deportivo</a></li>
+            </ul>
           </li>
           <li class="navbar__item">
-            <a href="#contacto" class="navbar__link">Contacto</a>
+            <a href="#reviews" class="navbar__link">Reseñas</a>
+          </li>
+          <li class="navbar__item">
+            <a href="#contact" class="navbar__link">Contacto</a>
           </li>
         </ul>
       </nav>
 
+      <!-- Iconos de acción -->
+      <div class="navbar__actions">
+        <button class="navbar__icon" aria-label="Buscar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="navbar__icon" aria-label="Favoritos">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+        <button class="navbar__icon navbar__cart" aria-label="Carrito de compras" id="cart-btn">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span class="navbar__cart-badge" id="cart-badge">0</span>
+        </button>
+        <button class="navbar__toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+          <span class="navbar__toggle-line"></span>
+          <span class="navbar__toggle-line"></span>
+          <span class="navbar__toggle-line"></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -55,20 +89,298 @@
        ============================================================ -->
   <main>
 
-    <!-- Sección: Inicio / Hero (contenedor vacío pendiente de contenido) -->
-    <section class="hero" id="inicio">
-      <!-- Contenedor del hero pendiente de contenido -->
-      <!-- El hero se completará el jueves 8 con el título y botones principales -->
+    <!-- Sección: Hero -->
+    <section class="hero" id="hero">
+      <div class="hero__overlay"></div>
+      <div class="hero__content">
+        <p class="hero__subtitle">— Colección 2026 —</p>
+        <h1 class="hero__title">
+          Diseñamos lo que <br>
+          <span class="hero__title-accent">te representa</span>
+        </h1>
+        <p class="hero__description">
+          Textiles de primera calidad confeccionados con pasión.
+          Descubre nuestras líneas Escolar, Trabajo y Deportiva.
+        </p>
+        <div class="hero__buttons">
+          <a href="#categories" class="btn btn--primary">Explorar Colecciones</a>
+          <a href="#about" class="btn btn--outline">Conoce Más</a>
+        </div>
+      </div>
+
+      <div class="hero__scroll">
+        <span>Desliza</span>
+        <div class="hero__scroll-line"></div>
+      </div>
     </section>
 
-    <!-- ============================================================
-         Sección: Catálogo de productos
-         Grid responsivo con tarjetas de producto estáticas
-         ============================================================ -->
+    <!-- Sección: Barra de beneficios (USP) -->
+    <section class="usp-bar">
+      <div class="usp-bar__container">
+        <div class="usp-item">
+          <i class="fa-solid fa-truck-fast"></i>
+          <span>Envío gratis +$99</span>
+        </div>
+        <div class="usp-item">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Pago 100% seguro</span>
+        </div>
+        <div class="usp-item">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Devoluciones en 30 días</span>
+        </div>
+        <div class="usp-item">
+          <i class="fa-solid fa-headset"></i>
+          <span>Soporte 24/7</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección: Sobre Nosotros -->
+    <section class="about" id="about">
+      <div class="about__container">
+        <div class="about__image">
+          <div class="about__image-placeholder"></div>
+        </div>
+        <div class="about__text">
+          <p class="section__label">— Nuestra Historia —</p>
+          <h2 class="section__title">Más que tela, creamos experiencias</h2>
+          <p class="about__paragraph">
+            En <strong>Gissi</strong> nos dedicamos a la confección y distribución de prendas
+            textiles desde hace más de 15 años. Cada prenda es el resultado de un proceso
+            artesanal que combina técnicas tradicionales con tecnología de vanguardia.
+          </p>
+          <p class="about__paragraph">
+            Trabajamos con algodones orgánicos, mezclas técnicas de alto rendimiento y telas
+            importadas de los mejores proveedores internacionales. Nuestro compromiso es
+            ofrecer calidad, comodidad y estilo en cada puntada.
+          </p>
+          <div class="about__stats">
+            <div class="stat">
+              <span class="stat__number" data-target="15000">0</span>
+              <span class="stat__label">Clientes Felices</span>
+            </div>
+            <div class="stat">
+              <span class="stat__number" data-target="350">0</span>
+              <span class="stat__label">Productos</span>
+            </div>
+            <div class="stat">
+              <span class="stat__number" data-target="15">0</span>
+              <span class="stat__label">Años de Experiencia</span>
+            </div>
+          </div>
+          <a href="#categories" class="btn btn--primary">Ver Catálogo</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección: Categorías / Colecciones -->
+    <section class="categories" id="categories">
+      <div class="categories__header">
+        <p class="section__label">— Nuestras Líneas —</p>
+        <h2 class="section__title">Encuentra tu estilo</h2>
+        <p class="section__description">
+          Tres líneas diseñadas para cada momento de tu vida. Calidad y estilo en cada categoría.
+        </p>
+      </div>
+
+      <div class="categories__grid">
+
+        <!-- GISSI ESCOLAR -->
+        <article class="category-card" id="sport">
+          <div class="category-card__image">
+            <div class="category-card__image-placeholder sport-bg"></div>
+          </div>
+          <div class="category-card__info">
+            <p class="category-card__tag">Rendimiento</p>
+            <h3 class="category-card__title">Gissi Escolar</h3>
+            <p class="category-card__description">
+              Prendas escolares diseñadas con telas resistentes y cómodas.
+              Ideal para el día a día en la escuela y el colegio.
+            </p>
+            <ul class="category-card__features">
+              <li><i class="fa-solid fa-check"></i> Telas resistentes</li>
+              <li><i class="fa-solid fa-check"></i> Costuras reforzadas</li>
+              <li><i class="fa-solid fa-check"></i> Colores duraderos</li>
+            </ul>
+            <a href="#catalogo" class="btn btn--primary btn--sm">Explorar Escolar <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </article>
+
+        <!-- GISSI TRABAJO -->
+        <article class="category-card category-card--reverse" id="tradicional">
+          <div class="category-card__image">
+            <div class="category-card__image-placeholder traditional-bg"></div>
+          </div>
+          <div class="category-card__info">
+            <p class="category-card__tag">Resistencia</p>
+            <h3 class="category-card__title">Gissi Trabajo</h3>
+            <p class="category-card__description">
+              Ropa laboral resistente y cómoda. Diseñada para quienes trabajan
+              con exigencia y necesitan durabilidad en cada prenda.
+            </p>
+            <ul class="category-card__features">
+              <li><i class="fa-solid fa-check"></i> Tela reforzada</li>
+              <li><i class="fa-solid fa-check"></i> Reflectantes</li>
+              <li><i class="fa-solid fa-check"></i> Normas de seguridad</li>
+            </ul>
+            <a href="#catalogo" class="btn btn--primary btn--sm">Explorar Trabajo <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </article>
+
+        <!-- GISSI DEPORTIVO -->
+        <article class="category-card" id="work">
+          <div class="category-card__image">
+            <div class="category-card__image-placeholder work-bg"></div>
+          </div>
+          <div class="category-card__info">
+            <p class="category-card__tag">Comodidad</p>
+            <h3 class="category-card__title">Gissi Deportivo</h3>
+            <p class="category-card__description">
+              Prendas deportivas diseñadas con telas transpirables y elásticas.
+              Ideal para entrenamiento, running y vida activa.
+            </p>
+            <ul class="category-card__features">
+              <li><i class="fa-solid fa-check"></i> Telas dry-fit</li>
+              <li><i class="fa-solid fa-check"></i> Costuras planas</li>
+              <li><i class="fa-solid fa-check"></i> Alta elasticidad</li>
+            </ul>
+            <a href="#catalogo" class="btn btn--primary btn--sm">Explorar Deportivo <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Sección: Productos destacados -->
+    <section class="featured" id="featured">
+      <div class="featured__header">
+        <p class="section__label">— Lo Más Vendido —</p>
+        <h2 class="section__title">Productos Destacados</h2>
+      </div>
+
+      <div class="featured__grid">
+
+        <!-- Producto destacado 1 -->
+        <div class="product-card">
+          <div class="product-card__badge product-card__badge--new">Nuevo</div>
+          <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+          <div class="product-card__image">
+            <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+          </div>
+          <div class="product-card__body">
+            <span class="product-card__category">Escolar</span>
+            <h3 class="product-card__name">Uniforme Escolar Primaria</h3>
+            <div class="product-card__rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star-half-stroke"></i>
+              <span>(128)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="product-card__price-current">$25.50</span>
+            </div>
+            <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+              <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+            </button>
+          </div>
+        </div>
+
+        <!-- Producto destacado 2 -->
+        <div class="product-card">
+          <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+          <div class="product-card__image">
+            <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+          </div>
+          <div class="product-card__body">
+            <span class="product-card__category">Trabajo</span>
+            <h3 class="product-card__name">Overol Industrial</h3>
+            <div class="product-card__rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <span>(95)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="product-card__price-current">$45.00</span>
+            </div>
+            <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+              <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+            </button>
+          </div>
+        </div>
+
+        <!-- Producto destacado 3 -->
+        <div class="product-card">
+          <div class="product-card__badge product-card__badge--sale">-20%</div>
+          <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+          <div class="product-card__image">
+            <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+          </div>
+          <div class="product-card__body">
+            <span class="product-card__category">Deportivo</span>
+            <h3 class="product-card__name">Camiseta Deportiva</h3>
+            <div class="product-card__rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-regular fa-star"></i>
+              <span>(73)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="product-card__price-current">$14.40</span>
+              <span class="product-card__price-old">$18.00</span>
+            </div>
+            <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+              <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+            </button>
+          </div>
+        </div>
+
+        <!-- Producto destacado 4 -->
+        <div class="product-card">
+          <button class="product-card__wishlist" aria-label="Agregar a favoritos">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+          <div class="product-card__image">
+            <img src="https://placehold.co/600x600/cccccc/666666?text=Insertar+imagen+aquí" alt="Insertar imagen aquí" class="product-card__img">
+          </div>
+          <div class="product-card__body">
+            <span class="product-card__category">Escolar</span>
+            <h3 class="product-card__name">Pantalón Escolar</h3>
+            <div class="product-card__rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <span>(204)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="product-card__price-current">$15.50</span>
+            </div>
+            <button class="btn btn--primary btn--sm product-card__btn add-to-cart">
+              <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección: Catálogo completo -->
     <section class="catalogo" id="catalogo">
       <div class="catalogo__container">
 
-        <!-- Encabezado del catálogo -->
         <div class="catalogo__header">
           <p class="section__label">— Nuestro Catálogo —</p>
           <h2 class="section__title">Productos Gissi</h2>
@@ -77,10 +389,9 @@
           </p>
         </div>
 
-        <!-- Grid de productos -->
         <div class="catalogo__grid">
 
-          <!-- Producto 1: Uniforme Escolar Primaria -->
+          <!-- Producto 1 -->
           <article class="product-card">
             <div class="product-card__badge product-card__badge--new">Nuevo</div>
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
@@ -113,7 +424,7 @@
             </div>
           </article>
 
-          <!-- Producto 2: Overol Industrial -->
+          <!-- Producto 2 -->
           <article class="product-card">
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
               <i class="fa-regular fa-heart"></i>
@@ -145,7 +456,7 @@
             </div>
           </article>
 
-          <!-- Producto 3: Camiseta Deportiva -->
+          <!-- Producto 3 -->
           <article class="product-card">
             <div class="product-card__badge product-card__badge--sale">-20%</div>
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
@@ -179,7 +490,7 @@
             </div>
           </article>
 
-          <!-- Producto 4: Pantalón Escolar -->
+          <!-- Producto 4 -->
           <article class="product-card">
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
               <i class="fa-regular fa-heart"></i>
@@ -211,7 +522,7 @@
             </div>
           </article>
 
-          <!-- Producto 5: Chaqueta de Seguridad -->
+          <!-- Producto 5 -->
           <article class="product-card">
             <div class="product-card__badge product-card__badge--new">Nuevo</div>
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
@@ -244,7 +555,7 @@
             </div>
           </article>
 
-          <!-- Producto 6: Sudadera Deportiva -->
+          <!-- Producto 6 -->
           <article class="product-card">
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
               <i class="fa-regular fa-heart"></i>
@@ -276,7 +587,7 @@
             </div>
           </article>
 
-          <!-- Producto 7: Camisa de Trabajo -->
+          <!-- Producto 7 -->
           <article class="product-card">
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
               <i class="fa-regular fa-heart"></i>
@@ -308,7 +619,7 @@
             </div>
           </article>
 
-          <!-- Producto 8: Falda Escolar -->
+          <!-- Producto 8 -->
           <article class="product-card">
             <div class="product-card__badge product-card__badge--sale">-15%</div>
             <button class="product-card__wishlist" aria-label="Agregar a favoritos">
@@ -346,68 +657,260 @@
       </div>
     </section>
 
-    <!-- Sección: Contacto (contenedor vacío pendiente de contenido) -->
-    <section class="contacto" id="contacto">
-      <!-- Contenedor de información de contacto y formulario pendiente de contenido -->
-      <!-- La información de contacto y el formulario se definirán el jueves 8 -->
+    <!-- Sección: Reseñas / Testimonios (placeholder) -->
+    <section class="reviews" id="reviews">
+      <div class="reviews__header">
+        <p class="section__label">— Testimonios —</p>
+        <h2 class="section__title">Lo que dicen nuestros clientes</h2>
+        <div class="reviews__summary">
+          <div class="reviews__score">
+            <span class="reviews__score-number">0.0</span>
+            <div class="reviews__score-stars">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <span class="reviews__score-total">+0 reseñas verificadas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reviews__grid">
+
+        <!-- Reseña 1 -->
+        <div class="review-card">
+          <div class="review-card__stars">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <p class="review-card__text">
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          </p>
+          <div class="review-card__author">
+            <div class="review-card__avatar">AA</div>
+            <div class="review-card__info">
+              <strong>Nombre Apellido</strong>
+              <span>Descripción · Categoría</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reseña 2 -->
+        <div class="review-card">
+          <div class="review-card__stars">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <p class="review-card__text">
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+            nisi ut aliquip ex ea commodo consequat."
+          </p>
+          <div class="review-card__author">
+            <div class="review-card__avatar">BB</div>
+            <div class="review-card__info">
+              <strong>Nombre Apellido</strong>
+              <span>Descripción · Categoría</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reseña 3 -->
+        <div class="review-card">
+          <div class="review-card__stars">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-regular fa-star"></i>
+          </div>
+          <p class="review-card__text">
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur."
+          </p>
+          <div class="review-card__author">
+            <div class="review-card__avatar">CC</div>
+            <div class="review-card__info">
+              <strong>Nombre Apellido</strong>
+              <span>Descripción · Categoría</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Sección: Contacto -->
+    <section class="contact" id="contact">
+      <div class="contact__container">
+        <div class="contact__info">
+          <p class="section__label">— Contáctanos —</p>
+          <h2 class="section__title">¿Tienes alguna pregunta?</h2>
+          <p class="contact__description">
+            Estamos aquí para ayudarte. Ya sea que necesites asesoría sobre tallas,
+            pedidos al por mayor o información sobre nuestras colecciones.
+          </p>
+
+          <div class="contact__details">
+            <div class="contact__item">
+              <div class="contact__item-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div class="contact__item-text">
+                <strong>Dirección</strong>
+                <p>Ayacucho 210, entre Olmedo y Colón<br>Tulcán, Carchi, Ecuador</p>
+              </div>
+            </div>
+            <div class="contact__item">
+              <div class="contact__item-icon">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div class="contact__item-text">
+                <strong>Teléfono</strong>
+                <p>+593 62 961 168<br>+593 99 393 9058</p>
+              </div>
+            </div>
+            <div class="contact__item">
+              <div class="contact__item-icon">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div class="contact__item-text">
+                <strong>Email</strong>
+                <p>Info@textileslospastos.com<br>lospastoseps@gmail.com</p>
+              </div>
+            </div>
+            <div class="contact__item">
+              <div class="contact__item-icon">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div class="contact__item-text">
+                <strong>Horario</strong>
+                <p>Lun – Vie: 9:00 – 18:00<br>Sáb: 10:00 – 14:00</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact__social">
+            <a href="#" class="contact__social-link" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="contact__social-link" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="contact__social-link" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" class="contact__social-link" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          </div>
+        </div>
+
+        <div class="contact__form-wrapper">
+          <form class="contact__form" id="contact-form">
+            <h3>Envíanos un mensaje</h3>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="name">Nombre completo</label>
+                <input type="text" id="name" name="name" placeholder="Ej: María García" required>
+              </div>
+              <div class="form__group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="maria@email.com" required>
+              </div>
+            </div>
+            <div class="form__group">
+              <label for="subject">Asunto</label>
+              <select id="subject" name="subject" required>
+                <option value="" disabled selected>Selecciona un tema</option>
+                <option value="producto">Consulta sobre producto</option>
+                <option value="pedido">Estado de mi pedido</option>
+                <option value="mayoreo">Pedido al por mayor</option>
+                <option value="devolucion">Devolución o cambio</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form__group">
+              <label for="message">Mensaje</label>
+              <textarea id="message" name="message" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">
+              <i class="fa-solid fa-paper-plane"></i> Enviar Mensaje
+            </button>
+          </form>
+        </div>
+      </div>
     </section>
 
   </main>
 
   <!-- ============================================================
-       FOOTER — Datos de contacto y derechos
+       FOOTER
        ============================================================ -->
   <footer class="footer">
     <div class="footer__container">
+      <div class="footer__grid">
 
-      <!-- Datos de contacto -->
-      <div class="footer__contact">
-        <h3 class="footer__title">Contacto</h3>
-        <ul class="footer__contact-list">
-          <li>
-            <i class="fa-solid fa-location-dot"></i>
-            <span>Ayacucho 210, entre Olmedo y Colón — Tulcán, Carchi, Ecuador</span>
-          </li>
-          <li>
-            <i class="fa-solid fa-phone"></i>
-            <span>+593 99 393 9058</span>
-          </li>
-          <li>
-            <i class="fa-solid fa-envelope"></i>
-            <span>Info@textileslospastos.com</span>
-          </li>
-        </ul>
-      </div>
+        <div class="footer__brand">
+          <a href="#hero" class="footer__logo">
+            <span class="footer__logo-main">GISSI</span>
+            <span class="footer__logo-accent">®</span>
+          </a>
+          <p class="footer__brand-text">
+            Prendas textiles de alta calidad para cada momento de tu vida.
+            Escolar, Trabajo y Deportivo — diseñados con pasión.
+          </p>
+        </div>
 
-      <!-- Enlaces rápidos -->
-      <div class="footer__links-col">
-        <h3 class="footer__title">Enlaces</h3>
-        <ul class="footer__links">
-          <li><a href="#inicio">Inicio</a></li>
-          <li><a href="#catalogo">Catálogo</a></li>
-          <li><a href="#contacto">Contacto</a></li>
-        </ul>
-      </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Colecciones</h4>
+          <ul class="footer__links">
+            <li><a href="#catalogo">Gissi Escolar</a></li>
+            <li><a href="#catalogo">Gissi Trabajo</a></li>
+            <li><a href="#catalogo">Gissi Deportivo</a></li>
+            <li><a href="#featured">Nuevos Ingresos</a></li>
+            <li><a href="#catalogo">Ofertas</a></li>
+          </ul>
+        </div>
 
-      <!-- Redes sociales -->
-      <div class="footer__social-col">
-        <h3 class="footer__title">Síguenos</h3>
-        <div class="footer__social">
-          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Empresa</h4>
+          <ul class="footer__links">
+            <li><a href="#about">Sobre Nosotros</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Trabaja con Nosotros</a></li>
+            <li><a href="#">Responsabilidad Social</a></li>
+            <li><a href="#contact">Contacto</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">Soporte</h4>
+          <ul class="footer__links">
+            <li><a href="#">Guía de Tallas</a></li>
+            <li><a href="#">Envíos y Entregas</a></li>
+            <li><a href="#">Política de Devoluciones</a></li>
+            <li><a href="#">Preguntas Frecuentes</a></li>
+            <li><a href="#">Términos y Condiciones</a></li>
+          </ul>
         </div>
       </div>
 
-    </div>
-
-    <!-- Derechos de autor -->
-    <div class="footer__bottom">
-      <p>&copy; 2026 Gissi — Asociación de Economía Solidaria Los Pastos. Todos los derechos reservados.</p>
+      <div class="footer__bottom">
+        <p>&copy; 2026 Gissi — Asociación de Economía Solidaria Los Pastos. Todos los derechos reservados.</p>
+        <p class="footer__bottom-links">
+          <a href="#">Privacidad</a> · <a href="#">Cookies</a> · <a href="#">Términos</a>
+        </p>
+      </div>
     </div>
   </footer>
 
-  <!-- Script principal (se creará en semanas posteriores) -->
+  <!-- Botón volver arriba -->
+  <button class="back-to-top" id="back-to-top" aria-label="Volver arriba">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <!-- Script principal -->
   <script src="public/script/script.js"></script>
 </body>
 </html>
