@@ -959,6 +959,87 @@ main {
   margin-top: auto;
 }
 
+/* ============================================================
+   12.1. ESTADOS DEL CATÁLOGO (cargando / error / vacío)
+   ============================================================ */
+
+.catalogo__estado {
+  max-width: var(--container-width);
+  margin: 0 auto 2rem auto;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.catalogo__cargando,
+.catalogo__error,
+.catalogo__mensaje {
+  padding: 3rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  color: var(--color-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.catalogo__cargando i,
+.catalogo__error i,
+.catalogo__mensaje i {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* --- Cargando --- */
+.catalogo__cargando {
+  background-color: var(--color-bg-alt);
+  border: 1px dashed var(--color-border);
+}
+
+.catalogo__cargando i {
+  color: var(--color-accent);
+}
+
+/* --- Error --- */
+.catalogo__error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.catalogo__error i {
+  color: #b91c1c;
+}
+
+.catalogo__reintentar {
+  margin-top: 0.5rem;
+  border-color: #b91c1c;
+  color: #b91c1c;
+  background: transparent;
+}
+
+.catalogo__reintentar:hover {
+  background: #b91c1c;
+  color: #ffffff;
+  border-color: #b91c1c;
+}
+
+/* --- Vacío --- */
+.catalogo__mensaje {
+  background-color: var(--color-bg-alt);
+  border: 1px dashed var(--color-border);
+}
+
+.catalogo__mensaje i {
+  color: var(--color-secondary);
+}
+
+.catalogo__mensaje-sub {
+  font-size: 0.9rem;
+  color: var(--color-secondary);
+  opacity: 0.8;
+}
 
 /* ============================================================
    13. RESEÑAS
