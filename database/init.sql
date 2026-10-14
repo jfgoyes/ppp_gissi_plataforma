@@ -35,6 +35,20 @@ CREATE TABLE producto (
     FOREIGN KEY (categoria_id) REFERENCES categoria(categoria_id)
 );
 
+-- Tabla producto_imagen (almacena la galería de imágenes de cada producto)
+CREATE TABLE producto_imagen (
+    producto_imagen_id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    producto_imagen_url VARCHAR(500) NOT NULL,
+    producto_imagen_alt VARCHAR(300) NULL,
+    producto_imagen_orden INT NOT NULL DEFAULT 0,
+    producto_imagen_principal BOOLEAN NOT NULL DEFAULT FALSE,
+    producto_imagen_origen ENUM('url', 'upload') NOT NULL DEFAULT 'upload',
+    producto_imagen_creada DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (producto_id) REFERENCES producto(producto_id) ON DELETE CASCADE,
+    INDEX idx_producto_imagen (producto_id, producto_imagen_orden)
+);
+
 -- Tabla talla
 CREATE TABLE talla (
     talla_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,6 +71,16 @@ CREATE TABLE inventario (
     FOREIGN KEY (producto_id) REFERENCES producto(producto_id),
     FOREIGN KEY (talla_id) REFERENCES talla(talla_id),
     FOREIGN KEY (color_id) REFERENCES color(color_id)
+);
+
+-- Tabla inventario_imagen (relaciona imágenes con variantes específicas)
+CREATE TABLE inventario_imagen (
+    inventario_imagen_id INT AUTO_INCREMENT PRIMARY KEY,
+    inventario_id INT NOT NULL,
+    producto_imagen_id INT NOT NULL,
+    FOREIGN KEY (inventario_id) REFERENCES inventario(inventario_id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_imagen_id) REFERENCES producto_imagen(producto_imagen_id) ON DELETE CASCADE,
+    UNIQUE KEY uk_inventario_imagen (inventario_id, producto_imagen_id)
 );
 
 -- Tabla cliente
@@ -185,10 +209,12 @@ UPDATE producto SET producto_destacado = TRUE WHERE producto_id IN (1, 6, 11, 19
 
 -- Selección de todas las tablas
 SELECT * FROM producto;
+SELECT * FROM producto_imagen;
 SELECT * FROM categoria;
 SELECT * FROM talla;
 SELECT * FROM color;
 SELECT * FROM inventario;
+SELECT * FROM inventario_imagen;
 SELECT * FROM cliente;
 SELECT * FROM usuario;
 SELECT * FROM proveedor;
@@ -247,6 +273,8 @@ WHERE producto_destacado = TRUE;
 -- Borrar todas las tablas
 -- ============================================================
 
+DROP TABLE IF EXISTS inventario_imagen;
+DROP TABLE IF EXISTS producto_imagen;
 DROP TABLE IF EXISTS detalle_pedido;
 DROP TABLE IF EXISTS pedido;
 DROP TABLE IF EXISTS inventario;

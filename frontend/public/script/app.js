@@ -8,6 +8,7 @@
 // ============================================================
 
 const API_URL = 'http://localhost:3000/api';
+const API_BASE = 'http://localhost:3000';
 
 // Referencias del DOM
 const catalogoGrid   = document.getElementById('catalogo-grid');
@@ -171,11 +172,21 @@ const crearTarjetaProducto = (producto) => {
     producto_descripcion,
     producto_precio,
     categoria_nombre,
-    producto_destacado
+    producto_destacado,
+    producto_imagen
   } = producto;
 
   const precioFormateado = `$${parseFloat(producto_precio).toFixed(2)}`;
-  const imagenUrl = `https://placehold.co/600x600/cccccc/666666?text=${encodeURIComponent(producto_nombre)}`;
+
+  // Construir URL final de imagen
+  let imagenUrl;
+  if (producto_imagen) {
+    imagenUrl = producto_imagen.startsWith('http')
+      ? producto_imagen                                // URL externa
+      : `${API_BASE}${producto_imagen}`;               // /uploads/... → local
+  } else {
+    imagenUrl = `https://placehold.co/600x600/cccccc/666666?text=${encodeURIComponent(producto_nombre)}`;
+  }
 
   // Badge si está destacado
   const badgeDestacado = producto_destacado

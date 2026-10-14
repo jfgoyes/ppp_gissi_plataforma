@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "start": "node app.js",
-  "dev": "nodemon app.js",
-  "test-db": "node test-connection.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test-db": "node test-connection.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,7 @@
     "cors": "^2.8.6",
     "dotenv": "^18.0.3",
     "express": "^5.2.1",
+    "multer": "^2.4.0",
     "mysql2": "^3.24.4"
   },
   "devDependencies": {

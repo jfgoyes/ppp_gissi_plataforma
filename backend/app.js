@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 // Middlewares de error personalizados
@@ -10,6 +11,10 @@ const app = express();
 // Middlewares globales
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Servir imágenes subidas como archivos estáticos
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middleware de log (desarrollo)
 app.use((req, res, next) => {
