@@ -774,6 +774,12 @@ main {
   gap: 2rem;
 }
 
+.featured__estado {
+  max-width: var(--container-width);
+  margin: 0 auto 2rem auto;
+  padding: 0 1.5rem;
+  text-align: center;
+}
 
 /* ============================================================
    12. CATÁLOGO Y GRID DE PRODUCTOS

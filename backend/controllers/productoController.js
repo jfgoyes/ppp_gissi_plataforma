@@ -13,6 +13,16 @@ const ProductoController = {
     }
   },
 
+  listarDestacados: async (req, res, next) => {
+    try {
+      const destacados = await ProductoModel.obtenerDestacados();
+      res.json({ ok: true, total: destacados.length, data: destacados });
+    } catch (error) {
+      console.error('Error al listar destacados:', error.message);
+      next(new ApiError(500, 'Error al obtener los productos destacados'));
+    }
+  },
+
   obtenerPorId: async (req, res, next) => {
     try {
       const id = validarId(req.params.id); // Lanza 400 si el ID es inválido

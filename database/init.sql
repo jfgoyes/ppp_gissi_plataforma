@@ -31,6 +31,7 @@ CREATE TABLE producto (
     producto_descripcion VARCHAR(300) NULL,
     producto_precio DECIMAL(10,2) NOT NULL,
     categoria_id INT,
+    producto_destacado BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (categoria_id) REFERENCES categoria(categoria_id)
 );
 
@@ -175,6 +176,9 @@ INSERT INTO proveedor (proveedor_nombre, proveedor_telefono, proveedor_direccion
 ('Confecciones Andinas', '0994445556', 'Calle 3 y Av. 4, Ipiales'),
 ('Hilos y Telas S.A.', '0997778889', 'Calle 5 y Av. 6, Pasto');
 
+-- Marcar destacados de prueba
+UPDATE producto SET producto_destacado = TRUE WHERE producto_id IN (1, 6, 11, 19);
+
 -- ============================================================
 -- Paso 4: Consultas de verificación
 -- ============================================================
@@ -233,6 +237,11 @@ INNER JOIN producto p   ON i.producto_id = p.producto_id
 INNER JOIN talla t      ON i.talla_id = t.talla_id
 INNER JOIN color co     ON i.color_id = co.color_id
 WHERE dp.pedido_id = 1;
+
+-- Verificar productos destacados
+SELECT producto_id, producto_nombre, producto_destacado 
+FROM producto 
+WHERE producto_destacado = TRUE;
 
 -- ============================================================
 -- Borrar todas las tablas

@@ -13,6 +13,10 @@ const API_URL = 'http://localhost:3000/api';
 const catalogoGrid   = document.getElementById('catalogo-grid');
 const catalogoEstado = document.getElementById('catalogo-estado');
 
+// Referencias para los productos destacados
+const featuredGrid   = document.getElementById('featured-grid');
+const featuredEstado = document.getElementById('featured-estado');
+
 // ============================================================
 // 2. FUNCIONES DE ESTADO (UI)
 // ============================================================
@@ -74,6 +78,42 @@ const limpiarEstados = () => {
   catalogoEstado.innerHTML = '';
 };
 
+/* --- Estados para la sección Destacados --- */
+
+const mostrarCargandoFeatured = () => {
+  featuredGrid.innerHTML = '';
+  featuredEstado.innerHTML = `
+    <div class="catalogo__cargando">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p>Cargando destacados...</p>
+    </div>
+  `;
+};
+
+const mostrarErrorFeatured = () => {
+  featuredGrid.innerHTML = '';
+  featuredEstado.innerHTML = `
+    <div class="catalogo__error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p>No se pudieron cargar los productos destacados.</p>
+    </div>
+  `;
+};
+
+const mostrarVacioFeatured = () => {
+  featuredGrid.innerHTML = '';
+  featuredEstado.innerHTML = `
+    <div class="catalogo__mensaje">
+      <i class="fa-solid fa-box-open"></i>
+      <p>Aún no hay productos destacados.</p>
+    </div>
+  `;
+};
+
+const limpiarEstadoFeatured = () => {
+  featuredEstado.innerHTML = '';
+};
+
 // ============================================================
 // 3. FUNCIÓN PARA OBTENER PRODUCTOS
 // ============================================================
@@ -101,6 +141,25 @@ const obtenerProductos = async () => {
   return data.data;
 };
 
+/**
+ * Obtiene solo los productos marcados como destacados.
+ */
+const obtenerDestacados = async () => {
+  const response = await fetch(`${API_URL}/productos/destacados`);
+
+  if (!response.ok) {
+    throw new Error(`Error HTTP: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (!data || !Array.isArray(data.data)) {
+    throw new Error('Formato de respuesta inválido del servidor.');
+  }
+
+  return data.data;
+};
+
 // ============================================================
 // 4. FUNCIÓN PARA CREAR UNA TARJETA DE PRODUCTO
 // ============================================================
@@ -111,11 +170,17 @@ const crearTarjetaProducto = (producto) => {
     producto_nombre,
     producto_descripcion,
     producto_precio,
-    categoria_nombre
+    categoria_nombre,
+    producto_destacado
   } = producto;
 
   const precioFormateado = `$${parseFloat(producto_precio).toFixed(2)}`;
   const imagenUrl = `https://placehold.co/600x600/cccccc/666666?text=${encodeURIComponent(producto_nombre)}`;
+
+  // Badge si está destacado
+  const badgeDestacado = producto_destacado
+    ? `<div class="product-card__badge product-card__badge--new">⭐ Destacado</div>`
+    : '';
 
   return `
     <article class="product-card" data-id="${producto_id}">
@@ -155,6 +220,22 @@ const renderizarCatalogo = (productos) => {
   console.log(`✅ ${productos.length} productos renderizados.`);
 };
 
+/**
+ * Renderiza los productos destacados en el grid de featured.
+ * Reutiliza crearTarjetaProducto pero sin descripción (más compacta).
+ */
+const renderizarDestacados = (productos) => {
+  limpiarEstadoFeatured();
+  featuredGrid.innerHTML = '';
+
+  productos.forEach(producto => {
+    // Reutilizamos la misma tarjeta
+    featuredGrid.innerHTML += crearTarjetaProducto(producto);
+  });
+
+  console.log(`⭐ ${productos.length} productos destacados renderizados.`);
+};
+
 // ============================================================
 // 6. FUNCIÓN PRINCIPAL (INICIALIZACIÓN)
 // ============================================================
@@ -178,6 +259,25 @@ const inicializarCatalogo = async () => {
   }
 };
 
+const inicializarDestacados = async () => {
+  mostrarCargandoFeatured();
+
+  try {
+    const destacados = await obtenerDestacados();
+
+    if (destacados.length === 0) {
+      mostrarVacioFeatured();
+      return;
+    }
+
+    renderizarDestacados(destacados);
+
+  } catch (error) {
+    console.error('Error al inicializar destacados:', error.message);
+    mostrarErrorFeatured();
+  }
+};
+
 // ============================================================
 // 7. EJECUTAR AL CARGAR EL DOM
 // ============================================================
@@ -185,4 +285,5 @@ const inicializarCatalogo = async () => {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('app.js cargado correctamente');
   inicializarCatalogo();
+  inicializarDestacados();
 });
