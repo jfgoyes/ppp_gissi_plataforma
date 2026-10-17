@@ -73,6 +73,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  overflow-x: hidden;
 }
 
 body {
@@ -82,6 +83,18 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   padding-top: var(--navbar-height);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Robustez ante textos dinámicos largos */
+.product-card__name,
+.product-card__description,
+.section__title,
+.category-card__title {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 img {
@@ -128,7 +141,7 @@ article[id] {
 
 .section__title {
   font-family: var(--font-heading);
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 700;
   color: var(--color-primary);
   margin-bottom: 1rem;
@@ -494,7 +507,7 @@ main {
 
 .hero__title {
   font-family: var(--font-heading);
-  font-size: 4rem;
+  font-size: clamp(2rem, 6vw, 4rem);
   line-height: 1.1;
   margin-bottom: 1.5rem;
 }
@@ -596,7 +609,7 @@ main {
 
 .about__image-placeholder {
   width: 100%;
-  height: 500px;
+  aspect-ratio: 4 / 5;
   border-radius: 12px;
   background-image: url('https://placehold.co/800x1000/cccccc/666666?text=Insertar+imagen+aquí');
   background-size: cover;
@@ -770,7 +783,7 @@ main {
   margin: 0 auto;
   padding: 0 1.5rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
 }
 
@@ -808,7 +821,7 @@ main {
 
 .catalogo__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
   margin-top: 3rem;
 }
@@ -875,15 +888,20 @@ main {
 }
 
 .product-card__image {
-  height: 250px;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background-color: var(--color-bg-alt);
 }
 
 .product-card__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: var(--transition);
 }
 
@@ -1453,10 +1471,6 @@ main {
 }
 
 @media (max-width: 992px) {
-  .section__title {
-    font-size: 2rem;
-  }
-
   .about__container,
   .contact__container {
     grid-template-columns: 1fr;
@@ -1476,10 +1490,6 @@ main {
   .category-card__features {
     display: inline-block;
     text-align: left;
-  }
-
-  .hero__title {
-    font-size: 3rem;
   }
 }
 
@@ -1603,10 +1613,6 @@ main {
     pointer-events: none;
   }
 
-  .hero__title {
-    font-size: 2.5rem;
-  }
-
   .hero__buttons {
     flex-direction: column;
     align-items: center;
@@ -1623,19 +1629,11 @@ main {
     gap: 1rem;
   }
 
-  .about__image-placeholder {
-    height: 300px;
-  }
-
   .about__stats {
     flex-direction: column;
     gap: 1.5rem;
     align-items: center;
     text-align: center;
-  }
-
-  .section__title {
-    font-size: 1.75rem;
   }
 
   .category-card__image-placeholder {
@@ -1673,10 +1671,6 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .featured__grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-
   .back-to-top {
     bottom: 20px;
     right: 20px;
@@ -1691,16 +1685,8 @@ main {
     font-size: 1.5rem;
   }
 
-  .hero__title {
-    font-size: 2rem;
-  }
-
   .hero__description {
     font-size: 1rem;
-  }
-
-  .section__title {
-    font-size: 1.5rem;
   }
 
   .category-card {
@@ -1709,15 +1695,6 @@ main {
 
   .category-card__image-placeholder {
     height: 200px;
-  }
-
-  .product-card__image {
-    height: 200px;
-  }
-
-  .featured__grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
   }
 
   .product-card__body {
@@ -1742,25 +1719,45 @@ main {
 /* ============================================================
    19. MEDIA QUERIES DEL GRID DE PRODUCTOS
    ============================================================ */
-@media (max-width: 992px) {
+
+/* Pantallas grandes (>= 1200px): 4 columnas por defecto (ya definido arriba) */
+
+/* Tablets horizontales y laptops pequeñas (992px - 1199px): 3 columnas */
+@media (max-width: 1199px) {
+  .featured__grid,
+  .catalogo__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Tablets (768px - 991px): 2 columnas */
+@media (max-width: 991px) {
+  .featured__grid,
   .catalogo__grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
 }
 
-@media (max-width: 768px) {
+/* Móviles (< 768px): 1 columna */
+@media (max-width: 767px) {
+  .featured__grid,
   .catalogo__grid {
     grid-template-columns: 1fr;
     gap: 1.25rem;
   }
 
-  .product-card__image {
-    height: 220px;
-  }
 }
 
+/* Móviles pequeños (< 480px): mantener 1 columna */
 @media (max-width: 480px) {
+  .featured__grid,
+  .catalogo__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
   .product-card__body {
     padding: 1.25rem;
   }
