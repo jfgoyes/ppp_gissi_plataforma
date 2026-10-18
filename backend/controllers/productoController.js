@@ -45,16 +45,21 @@ const ProductoController = {
   },
 
   /**
-   * Detalle completo con TODAS sus imágenes (para galería / modal).
+   * Detalle completo del producto:
+   *  - datos base (nombre, precio, descripción, categoría)
+   *  - galería completa de imágenes
+   *  - variantes de inventario (talla + color + stock)
+   *  - totales derivados (stock_total, tallas[], colores[])
+   *
+   * Usado por GET /api/productos/:id/detalle
    */
   obtenerConImagenes: async (req, res, next) => {
     try {
       const id = validarId(req.params.id);
-      const producto = await ProductoModel.obtenerPorId(id);
+      const producto = await ProductoModel.obtenerDetalleCompleto(id);
       if (!producto) throw new ApiError(404, `No se encontró un producto con ID ${id}`);
 
-      const imagenes = await ProductoImagenModel.obtenerPorProducto(id);
-      res.json({ ok: true, data: { ...producto, imagenes } });
+      res.json({ ok: true, data: producto });
     } catch (error) {
       console.error('Error al obtener detalle:', error.message);
       next(error);

@@ -252,7 +252,7 @@
   text-transform: uppercase;
   color: var(--fg-2);
 }
-.catalog-image > b {
+.catalog-image > .card-ver-mas {
   position: absolute;
   top: 14px; right: 14px;
   width: 32px; height: 32px;
@@ -260,14 +260,19 @@
   background: var(--accent);
   color: #0a0a0a;
   border-radius: 50%;
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0;
   transform: scale(0.7);
   transition: var(--transition);
+  z-index: 3;
 }
-.catalog-item:hover .catalog-image > b {
+.catalog-item:hover .catalog-image > .card-ver-mas {
   opacity: 1;
   transform: scale(1);
+}
+.card-ver-mas:hover {
+  background: #ff7a3f;
+  transform: scale(1.1) rotate(8deg) !important;
 }
 
 .product-card__badge {

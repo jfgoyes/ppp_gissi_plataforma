@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Detalle del producto | GISSI | Textiles Los Pastos">
+  <title>Detalle | GISSI | Textiles Los Pastos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="public/style/styles.css">
+  <link rel="stylesheet" href="public/style/carrito.css">
+  <link rel="stylesheet" href="public/style/producto.css">
+</head>
+<body>
+
+  <div class="noise"></div>
+
+  <!-- ═══ CABECERA ═══ -->
+  <header class="site-header">
+    <a class="brand" href="inicio.html">
+      <span class="brand__mark">G</span>
+      <span><b>GISSI</b><br>x DEPORTIVO</span>
+    </a>
+
+    <button class="menu-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+
+    <nav class="main-nav" id="nav-menu">
+      <a href="inicio.html">Inicio</a>
+      <a class="active" href="catalogo.html">Catálogo</a>
+      <a href="proceso.html">Proceso</a>
+      <a href="nosotros.html">Nosotros</a>
+    </nav>
+  </header>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="inner-main">
+    <!-- Estado: cargando / error / vacío -->
+    <div id="detalle-estado" class="detalle__estado"></div>
+
+    <!-- Contenedor del detalle (oculto hasta cargar) -->
+    <section class="detalle" id="detalle" hidden>
+
+      <!-- Breadcrumb -->
+      <nav class="detalle__breadcrumb" aria-label="Ruta de navegación">
+        <a href="inicio.html">Inicio</a>
+        <span>›</span>
+        <a href="catalogo.html">Catálogo</a>
+        <span>›</span>
+        <span class="detalle__breadcrumb-current" id="bc-nombre">…</span>
+      </nav>
+
+      <div class="detalle__grid">
+
+        <!-- ── GALERÍA ── -->
+        <div class="detalle__gallery">
+          <div class="detalle__main-image" id="detalle-main-image">
+            <img id="detalle-img-principal" src="" alt="" loading="eager">
+            <div class="detalle__badge" id="detalle-badge" hidden>⭐ Destacado</div>
+          </div>
+          <!-- Miniaturas (solo si hay más de una imagen) -->
+          <div class="detalle__thumbs" id="detalle-thumbs" hidden></div>
+        </div>
+
+        <!-- ── INFORMACIÓN ── -->
+        <div class="detalle__info">
+          <p class="detalle__categoria" id="detalle-categoria">Categoría</p>
+          <h1 class="detalle__titulo" id="detalle-nombre">…</h1>
+          <p class="detalle__precio" id="detalle-precio">$0.00</p>
+          <p class="detalle__descripcion" id="detalle-descripcion"></p>
+
+          <!-- Stock -->
+          <div class="detalle__stock" id="detalle-stock"></div>
+
+          <!-- Tallas disponibles -->
+          <div class="detalle__section" id="detalle-tallas-section">
+            <h3><i class="fa-solid fa-ruler"></i> Tallas disponibles</h3>
+            <div class="detalle__chips" id="detalle-tallas"></div>
+          </div>
+
+          <!-- Colores disponibles -->
+          <div class="detalle__section" id="detalle-colores-section">
+            <h3><i class="fa-solid fa-palette"></i> Colores disponibles</h3>
+            <div class="detalle__chips" id="detalle-colores"></div>
+          </div>
+
+          <!-- Variantes (talla + color + stock) -->
+          <div class="detalle__section" id="detalle-variantes-section">
+            <h3><i class="fa-solid fa-boxes-stacked"></i> Disponibilidad por variante</h3>
+            <div class="detalle__variantes" id="detalle-variantes"></div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="detalle__actions">
+            <button class="button primary" id="detalle-btn-carrito">
+              <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
+            </button>
+            <a class="button outline detalle__btn-wsp" id="detalle-btn-wsp"
+               href="#" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-whatsapp"></i> Consultar
+            </a>
+          </div>
+
+          <a class="text-link detalle__back" href="catalogo.html">
+            <span>←</span> Volver al catálogo
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="footer-brand" style="line-height:1.1">
+      GISSI<br>
+      <span style="font-size: 13px; font-weight: 500; letter-spacing: 2px; color: var(--muted);">
+        TEXTILES LOS PASTOS
+      </span>
+    </div>
+    <p>Diseño, pasión y rendimiento para cada equipo.</p>
+    <div class="footer-links">
+      <a href="inicio.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+    </div>
+    <small>© 2026 GISSI | Textiles Los Pastos.</small>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" aria-label="Volver arriba">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <script src="public/script/carrito.js"></script>
+  <script src="public/script/script.js"></script>
+  <script src="public/script/producto.js"></script>
+</body>
+</html>

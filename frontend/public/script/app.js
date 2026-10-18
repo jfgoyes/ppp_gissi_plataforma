@@ -145,7 +145,11 @@ const crearTarjetaProducto = (producto) => {
           fetchpriority="low"
           onload="this.classList.add('is-loaded')">
         <span>${categoria_nombre || 'General'}</span>
-        <b>↗</b>
+        <a class="card-ver-mas" href="producto.html?id=${producto_id}"
+          aria-label="Ver detalle de ${escAttr(producto_nombre)}"
+          title="Ver detalle">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
       </div>
       <div class="catalog-info">
         <h3>${producto_nombre}</h3>
