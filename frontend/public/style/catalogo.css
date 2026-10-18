@@ -1,0 +1,122 @@
+/* ============================================================
+   GISSI — catalogo.css  ·  Se carga SOLO en catalogo.html
+   ============================================================ */
+
+/* ---------- TOOLBAR CON FILTROS ---------- */
+.catalog-toolbar {
+  max-width: var(--container);
+  margin: 0 auto 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: var(--transition);
+  background: transparent;
+}
+.filter:hover {
+  color: var(--fg);
+  border-color: var(--fg-2);
+}
+.filter.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0a0a0a;
+  font-weight: 700;
+}
+
+#catalogCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ---------- FIX: separar badge y categoría ---------- */
+.catalog-item .product-card__badge {
+  top: 14px;
+  left: 14px;
+}
+/* Si hay badge, empujar la etiqueta de categoría */
+.catalog-item .product-card__badge + .catalog-image > span,
+.catalog-item .product-card__badge ~ .catalog-image > span {
+  top: 52px;
+}
+
+/* ---------- ESTADO (por si acaso, sin depender de home.css) ---------- */
+.catalogo__estado {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+.catalogo__cargando,
+.catalogo__error,
+.catalogo__mensaje {
+  padding: 60px 24px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--muted);
+}
+.catalogo__cargando i,
+.catalogo__error i,
+.catalogo__mensaje i { font-size: 2.4rem; display: block; }
+.catalogo__cargando {
+  background: var(--bg-2);
+  border: 1px dashed var(--line);
+}
+.catalogo__cargando i { color: var(--accent); }
+.catalogo__error {
+  background: rgba(230, 57, 70, 0.08);
+  border: 1px solid rgba(230, 57, 70, 0.4);
+  color: #ff8a8a;
+}
+.catalogo__error i { color: #ff8a8a; }
+.catalogo__reintentar {
+  margin-top: 8px;
+  border-color: #ff8a8a;
+  color: #ff8a8a;
+}
+.catalogo__reintentar:hover {
+  background: #ff8a8a;
+  color: #0a0a0a;
+  border-color: #ff8a8a;
+}
+.catalogo__mensaje {
+  background: var(--bg-2);
+  border: 1px dashed var(--line);
+}
+.catalogo__mensaje i { color: var(--muted); }
+.catalogo__mensaje-sub { font-size: 0.88rem; color: var(--muted); opacity: 0.75; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px) {
+  .catalog-toolbar { flex-direction: column; align-items: flex-start; }
+}

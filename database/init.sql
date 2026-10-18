@@ -201,7 +201,7 @@ INSERT INTO proveedor (proveedor_nombre, proveedor_telefono, proveedor_direccion
 ('Hilos y Telas S.A.', '0997778889', 'Calle 5 y Av. 6, Pasto');
 
 -- Marcar destacados de prueba
-UPDATE producto SET producto_destacado = TRUE WHERE producto_id IN (1, 6, 11, 19);
+UPDATE producto SET producto_destacado = TRUE WHERE producto_id IN (1, 6, 8, 11, 15, 19);
 
 -- ============================================================
 -- Paso 4: Consultas de verificación
