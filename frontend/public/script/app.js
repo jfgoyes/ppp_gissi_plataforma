@@ -2,6 +2,7 @@
    PLATAFORMA WEB GISSI — app.js
    Conexión con el backend + renderizado dinámico
    Adaptado a interfaz 2 multi-página
+   Con integración de carrito (window.GissiCarrito)
    ============================================================ */
 
 // ============================================================
@@ -85,7 +86,14 @@ const obtenerDestacados = async () => {
 };
 
 // ============================================================
-// 4. TARJETA DE PRODUCTO
+// 4. HELPERS
+// ============================================================
+// Escapa comillas dobles para meter el nombre en un atributo HTML
+const escAttr = (str = '') =>
+  String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// ============================================================
+// 5. TARJETA DE PRODUCTO
 // ============================================================
 const crearTarjetaProducto = (producto) => {
   const {
@@ -116,20 +124,20 @@ const crearTarjetaProducto = (producto) => {
   const variants = ['dark', 'red', 'dark', 'light'];
   const variant  = variants[producto_id % variants.length];
 
-    // WhatsApp: mismo enlace para portada y catálogo, con mensaje pre-rellenado
+  // Fallback del href: si carrito.js no carga, al menos hay un enlace funcional
   const waNumero  = '593993939058';
-  const waMensaje = encodeURIComponent(
+  const waFallback = encodeURIComponent(
     `Hola GISSI, me interesa el diseño "${producto_nombre}" (código ${producto_id}). ¿Podrían darme más información?`
   );
-  const waUrl = `https://wa.me/${waNumero}?text=${waMensaje}`;
+  const waUrlFallback = `https://wa.me/${waNumero}?text=${waFallback}`;
 
   return `
-    <article class="catalog-item ${variant}" data-id="${producto_id}" data-category="${(categoria_nombre || '').toLowerCase()}">
+    <article class="catalog-item ${variant}" data-id="${producto_id}" data-category="${escAttr((categoria_nombre || '').toLowerCase())}">
       ${badge}
       <div class="catalog-image">
         <img
           src="${imagenUrl}"
-          alt="${producto_nombre}"
+          alt="${escAttr(producto_nombre)}"
           width="1200"
           height="780"
           loading="lazy"
@@ -144,31 +152,85 @@ const crearTarjetaProducto = (producto) => {
         <p>${producto_descripcion || 'Ver diseño completo'}</p>
         <div class="catalog-footer">
           <strong>${precio}</strong>
-          <a
-            class="btn-add btn-wsp"
-            href="${waUrl}"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Consultar por WhatsApp sobre ${producto_nombre}">
-            <i class="fa-brands fa-whatsapp"></i>
-          </a>
+          <div class="catalog-actions">
+            <a
+              class="btn-add btn-wsp"
+              href="${waUrlFallback}"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-accion="wsp-producto"
+              data-id="${producto_id}"
+              data-nombre="${escAttr(producto_nombre)}"
+              data-precio="${producto_precio}"
+              data-categoria="${escAttr(categoria_nombre || '')}"
+              aria-label="Consultar por WhatsApp sobre ${escAttr(producto_nombre)}"
+              title="Consultar por WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <button
+              type="button"
+              class="btn-add btn-cart"
+              data-id="${producto_id}"
+              data-nombre="${escAttr(producto_nombre)}"
+              data-precio="${producto_precio}"
+              data-imagen="${escAttr(imagenUrl)}"
+              aria-label="Agregar ${escAttr(producto_nombre)} al carrito"
+              title="Agregar al carrito">
+              <i class="fa-solid fa-cart-plus"></i>
+            </button>
+          </div>
         </div>
       </div>
     </article>`;
 };
 
 // ============================================================
-// 5. RENDERIZAR
+// 6. RENDERIZAR
 // ============================================================
 const renderizarCatalogo = (productos) => {
   limpiarEstados();
   catalogoGrid.innerHTML = productos.map(crearTarjetaProducto).join('');
   if (catalogCount) catalogCount.textContent = `${productos.length} diseños`;
   console.log(`✅ ${productos.length} productos renderizados en "${paginaActual}".`);
+
+  // Listeners de "Agregar al carrito"
+  catalogoGrid.querySelectorAll('.btn-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const producto = {
+        id:     Number(btn.dataset.id),
+        nombre: btn.dataset.nombre,
+        precio: Number(btn.dataset.precio),
+        imagen: btn.dataset.imagen
+      };
+
+      if (window.GissiCarrito && typeof window.GissiCarrito.agregar === 'function') {
+        window.GissiCarrito.agregar(producto);
+      } else {
+        console.warn('carrito.js no está cargado; no se puede agregar al carrito.');
+      }
+    });
+  });
+
+  // Listeners del botón WhatsApp individual (mensaje formateado desde carrito.js)
+  catalogoGrid.querySelectorAll('[data-accion="wsp-producto"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (window.GissiCarrito && typeof window.GissiCarrito.consultarProducto === 'function') {
+        e.preventDefault();
+        window.GissiCarrito.consultarProducto({
+          id:        Number(link.dataset.id),
+          nombre:    link.dataset.nombre,
+          precio:    Number(link.dataset.precio),
+          categoria: link.dataset.categoria
+        });
+      }
+      // Si carrito.js no está cargado, se deja el href fallback y se abre igual
+    });
+  });
 };
 
 // ============================================================
-// 6. FILTROS (solo catálogo)
+// 7. FILTROS (solo catálogo)
 // ============================================================
 const generarFiltros = (productos) => {
   if (!filterGroup) return;
@@ -202,7 +264,6 @@ const generarFiltros = (productos) => {
         }
       });
 
-      // Actualiza contador
       const visibles = [...items].filter(i => i.style.display !== 'none').length;
       if (catalogCount) catalogCount.textContent = `${visibles} diseños`;
     });
@@ -210,7 +271,7 @@ const generarFiltros = (productos) => {
 };
 
 // ============================================================
-// 7. INICIALIZACIÓN SEGÚN PÁGINA
+// 8. INICIALIZACIÓN SEGÚN PÁGINA
 // ============================================================
 const inicializarCatalogo = async () => {
   if (!catalogoGrid) return;
@@ -218,7 +279,6 @@ const inicializarCatalogo = async () => {
   mostrarCargando();
 
   try {
-    // Inicio → solo destacados | Catálogo → todos
     const productos = paginaActual === 'inicio'
       ? await obtenerDestacados()
       : await obtenerProductos();
@@ -241,7 +301,7 @@ const inicializarCatalogo = async () => {
 };
 
 // ============================================================
-// 8. ARRANQUE
+// 9. ARRANQUE
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log(`app.js cargado · página: ${paginaActual}`);

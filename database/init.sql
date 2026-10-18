@@ -169,7 +169,8 @@ INSERT INTO producto (producto_nombre, producto_descripcion, producto_precio, ca
 ('Buzo Escolar', 'Buzo abrigado para uniforme escolar', 28.00, 1),
 ('Chaleco Escolar', 'Chaleco para uniforme escolar', 20.00, 1),
 ('Camisa Formal', 'Camisa formal para uso laboral', 26.00, 2),
-('Pantalón Jeans', 'Pantalón de jeans para uso diario', 32.00, 2);
+('Pantalón Jeans', 'Pantalón de jeans para uso diario', 32.00, 2),
+('Uniforme Escolar de Gala para Ceremonias Especiales de Fin de Año Escolar', 'Conjunto completo de camisa, pantalón, chaleco, corbata y botones dorados con acabados premium para eventos protocolarios.', 89.99, 1);
 
 -- Inventario (variantes producto + talla + color)
 INSERT INTO inventario (producto_id, talla_id, color_id, inventario_stock) VALUES
