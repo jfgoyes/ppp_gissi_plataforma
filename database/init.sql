@@ -286,3 +286,88 @@ DROP TABLE IF EXISTS color;
 DROP TABLE IF EXISTS cliente;
 DROP TABLE IF EXISTS usuario;
 DROP TABLE IF EXISTS proveedor;
+
+-- ============================================================
+-- Sentencias para realizar pruebas
+-- ============================================================
+
+-- Categorías (siempre serán estas 3)
+INSERT INTO categoria (categoria_nombre, categoria_descripcion) VALUES
+  ('Escolar',  'Uniformes y prendas escolares'),
+  ('Trabajo',  'Ropa de trabajo y seguridad industrial'),
+  ('Deportivo','Ropa deportiva y cómoda para actividad física');
+
+-- Tallas (en orden de menor a mayor para que el ORDER BY se vea bien)
+INSERT INTO talla (talla_nombre) VALUES
+  ('XS'), ('S'), ('M'), ('L'), ('XL'), ('XXL');
+
+-- Colores base
+INSERT INTO color (color_nombre) VALUES
+  ('Azul'), ('Negro'), ('Blanco'), ('Gris'), ('Verde'), ('Rojo');
+
+SELECT * FROM categoria;
+SELECT * FROM talla;
+SELECT * FROM color;
+
+-- ============================================================
+-- PLANTILLA: Registrar producto con inventario (sin imagen)
+-- Las imágenes se agregan luego vía Postman con:
+--   POST /api/productos/:id/imagenes
+-- ============================================================
+
+-- ---------- DATOS A REEMPLAZAR ----------
+SET @nombre       = 'Camiseta Deportiva Transpirable GISSI';
+SET @descripcion  = 'Camiseta deportiva de tejido transpirable. Manga corta, cuello redondo y costuras planas para evitar roces. Ideal para fútbol, running y entrenamiento diario.';
+SET @precio       = 24.90;
+SET @categoria_id = 3;          -- 1=Escolar, 2=Trabajo, 3=Deportivo
+SET @destacado    = TRUE;
+
+-- ---------- IDs DE REFERENCIA (verificar antes) ----------
+-- Tallas:  1=XS, 2=S, 3=M, 4=L, 5=XL, 6=XXL
+-- Colores: 1=Azul, 2=Negro, 3=Blanco, 4=Gris, 5=Verde, 6=Rojo
+
+-- ============================================================
+-- EJECUCIÓN
+-- ============================================================
+START TRANSACTION;
+
+-- 1) Producto base
+INSERT INTO producto
+  (producto_nombre, producto_descripcion, producto_precio,
+   categoria_id, producto_destacado)
+VALUES
+  (@nombre, @descripcion, @precio, @categoria_id, @destacado);
+
+SET @pid = LAST_INSERT_ID();
+
+-- 2) Inventario: variantes talla × color × stock
+--    Ajusta las filas según lo que realmente tenga el producto.
+INSERT INTO inventario (producto_id, talla_id, color_id, inventario_stock) VALUES
+  (@pid, 3, 1, 1),   -- M, Azul
+  (@pid, 4, 1, 1),   -- L, Azul
+  (@pid, 3, 2, 0),   -- M, Negro
+  (@pid, 4, 2, 0);   -- L, Negro
+
+COMMIT;
+
+-- ============================================================
+-- VERIFICACIÓN
+-- ============================================================
+SELECT @pid AS nuevo_producto_id;
+
+SELECT p.producto_id, p.producto_nombre, p.producto_precio,
+       c.categoria_nombre, p.producto_destacado
+FROM producto p
+INNER JOIN categoria c ON p.categoria_id = c.categoria_id
+WHERE p.producto_id = @pid;
+
+SELECT t.talla_nombre, co.color_nombre, i.inventario_stock
+FROM inventario i
+INNER JOIN talla t  ON i.talla_id = t.talla_id
+INNER JOIN color co ON i.color_id = co.color_id
+WHERE i.producto_id = @pid
+ORDER BY t.talla_id, co.color_id;
+
+SELECT SUM(inventario_stock) AS stock_total
+FROM inventario
+WHERE producto_id = @pid;

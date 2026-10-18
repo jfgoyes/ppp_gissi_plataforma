@@ -56,14 +56,61 @@
 
       <div class="detalle__grid">
 
-        <!-- ── GALERÍA ── -->
+        <!-- ── GALERÍA / CARRUSEL ── -->
         <div class="detalle__gallery">
-          <div class="detalle__main-image" id="detalle-main-image">
-            <img id="detalle-img-principal" src="" alt="" loading="eager">
-            <div class="detalle__badge" id="detalle-badge" hidden>⭐ Destacado</div>
-          </div>
-          <!-- Miniaturas (solo si hay más de una imagen) -->
-          <div class="detalle__thumbs" id="detalle-thumbs" hidden></div>
+            <div class="detalle__carousel" id="detalle-carousel">
+                <div class="detalle__badge" id="detalle-badge" hidden>⭐ Destacado</div>
+
+                <!-- Contador 1 / N -->
+                <div class="detalle__counter" id="detalle-counter" hidden>1 / 1</div>
+
+                <!-- Flecha izquierda -->
+                <button type="button"
+                        class="detalle__nav detalle__nav--prev"
+                        id="detalle-prev"
+                        aria-label="Imagen anterior"
+                        hidden>
+                <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <!-- Ventana deslizante -->
+                <div class="detalle__slides" id="detalle-slides">
+                <img id="detalle-img-principal" src="" alt="" loading="eager">
+                </div>
+
+                <!-- Flecha derecha -->
+                <button type="button"
+                        class="detalle__nav detalle__nav--next"
+                        id="detalle-next"
+                        aria-label="Imagen siguiente"
+                        hidden>
+                <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <!-- Indicadores (puntos) -->
+                <div class="detalle__dots" id="detalle-dots" hidden></div>
+            </div>
+
+            <!-- Miniaturas con flechas -->
+            <div class="detalle__thumbs-wrap" id="detalle-thumbs-wrap" hidden>
+                <button type="button"
+                        class="detalle__thumbs-nav detalle__thumbs-nav--prev"
+                        id="detalle-thumbs-prev"
+                        aria-label="Miniaturas anteriores"
+                        hidden>
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div class="detalle__thumbs" id="detalle-thumbs"></div>
+
+                <button type="button"
+                        class="detalle__thumbs-nav detalle__thumbs-nav--next"
+                        id="detalle-thumbs-next"
+                        aria-label="Miniaturas siguientes"
+                        hidden>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
 
         <!-- ── INFORMACIÓN ── -->

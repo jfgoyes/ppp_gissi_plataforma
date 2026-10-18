@@ -38,6 +38,9 @@
   max-width: var(--container);
   margin: 0 auto;
   padding: 40px 40px 100px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* ---------- BREADCRUMB ---------- */
@@ -59,7 +62,7 @@
   color: var(--line);
 }
 
-/* El nombre del producto va en naranja (misma especificidad que el separador) */
+/* El nombre del producto va en naranja */
 .detalle__breadcrumb .detalle__breadcrumb-current,
 .detalle__breadcrumb > span.detalle__breadcrumb-current {
   color: var(--accent);
@@ -68,33 +71,66 @@
 /* ---------- GRID PRINCIPAL ---------- */
 .detalle__grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  /* minmax(0, Xfr) es la clave para que el contenido interno
+     (carrusel, thumbs con scroll) NO expanda la columna. */
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 60px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
-/* ---------- GALERÍA ---------- */
-.detalle__main-image {
+/* ============================================================
+   GALERÍA / CARRUSEL
+   ============================================================ */
+.detalle__gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  /* contain: layout aísla el layout interno. NO ponemos overflow: hidden
+     porque bloquearía scrollLeft en Safari. */
+  contain: layout style;
+}
+
+.detalle__carousel {
   position: relative;
   aspect-ratio: 3 / 2;
+  min-height: 200px;             /* evita colapso antes de cargar imágenes */
   background: var(--bg-3);
   border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
-.detalle__main-image img {
+
+/* Ventana deslizante */
+.detalle__slides {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.detalle__slides img {
+  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.6s ease;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-.detalle__main-image:hover img { transform: scale(1.03); }
 
+/* Badge destacado */
 .detalle__badge {
   position: absolute;
-  top: 18px; left: 18px;
-  z-index: 2;
+  top: 16px; left: 16px;
+  z-index: 4;
   background: var(--accent);
   color: #0a0a0a;
   font-family: var(--font-mono);
@@ -105,31 +141,226 @@
   border-radius: 3px;
 }
 
-.detalle__thumbs {
+/* Contador 1 / N */
+.detalle__counter {
+  position: absolute;
+  top: 16px; right: 16px;
+  z-index: 4;
+  padding: 5px 10px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--fg-2);
+}
+
+/* Flechas laterales (inteligentes: se ocultan vía [hidden]) */
+.detalle__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  background: rgba(10, 10, 10, 0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--fg);
+  font-size: 15px;
+  z-index: 5;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s, background 0.2s, transform 0.2s;
+}
+.detalle__nav--prev { left: 16px; }
+.detalle__nav--next { right: 16px; }
+
+/* La flecha se muestra al hover, pero solo si NO está [hidden] */
+.detalle__carousel:hover .detalle__nav:not([hidden]) {
+  opacity: 1;
+  visibility: visible;
+}
+.detalle__nav:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0a0a0a;
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* En móvil / táctil, siempre visibles si aplican */
+@media (hover: none) {
+  .detalle__nav:not([hidden]) {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Indicadores (puntos) */
+.detalle__dots {
+  position: absolute;
+  left: 0; right: 0; bottom: 14px;
   display: flex;
-  gap: 12px;
-  margin-top: 14px;
+  justify-content: center;
+  gap: 8px;
+  z-index: 4;
+  padding: 0 16px;
   flex-wrap: wrap;
 }
+.detalle__dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.detalle__dot:hover { background: rgba(255, 255, 255, 0.7); }
+.detalle__dot.is-active {
+  background: var(--accent);
+  width: 22px;
+  border-radius: 999px;
+}
+
+/* ============================================================
+   MINIATURAS
+   ============================================================ */
+.detalle__thumbs-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  /* Sin padding lateral — las flechas se solapan sobre las miniaturas */
+}
+
+.detalle__thumbs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  padding: 4px 2px;
+  scrollbar-width: none;             /* Firefox: oculta barra */
+  min-width: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;  /* scroll suave en iOS */
+}
+.detalle__thumbs::-webkit-scrollbar {
+  display: none;                      /* WebKit: oculta barra */
+}
+
 .detalle__thumb {
-  width: 80px; height: 80px;
-  border-radius: 4px;
+  flex: 0 0 auto;
+  width: 88px;
+  height: 88px;
+  border-radius: 6px;
   overflow: hidden;
   border: 2px solid var(--line);
   background: var(--bg-3);
   cursor: pointer;
-  transition: var(--transition);
   padding: 0;
+  transition: var(--transition);
+  position: relative;
 }
 .detalle__thumb img {
   width: 100%; height: 100%;
   object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
 }
-.detalle__thumb:hover { border-color: var(--accent); }
-.detalle__thumb.is-active { border-color: var(--accent); }
+.detalle__thumb:hover {
+  border-color: var(--fg-2);
+}
+.detalle__thumb:hover img {
+  transform: scale(1.05);
+}
+.detalle__thumb.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 90, 31, 0.25);
+}
+
+/* ---------- Flechas de miniaturas (superpuestas) ---------- */
+.detalle__thumbs-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  background: rgba(10, 10, 10, 0.78);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--fg);
+  font-size: 10px;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 4;
+  padding: 0;
+}
+.detalle__thumbs-nav--prev { left: 4px; }
+.detalle__thumbs-nav--next { right: 4px; }
+
+.detalle__thumbs-nav:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0a0a0a;
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* Degradados laterales para insinuar que hay más contenido */
+.detalle__thumbs-wrap::before,
+.detalle__thumbs-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 36px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.detalle__thumbs-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+}
+.detalle__thumbs-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);
+}
+/* Se muestran solo cuando la flecha correspondiente está activa */
+.detalle__thumbs-wrap:has(#detalle-thumbs-prev:not([hidden]))::before,
+.detalle__thumbs-wrap:has(#detalle-thumbs-next:not([hidden]))::after {
+  opacity: 1;
+}
+
+/* Tamaños responsivos de las miniaturas */
+@media (min-width: 768px) {
+  .detalle__thumb {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .detalle__thumb {
+    width: 108px;
+    height: 108px;
+  }
+}
 
 /* ---------- INFORMACIÓN ---------- */
-.detalle__info { padding-top: 8px; }
+.detalle__info {
+  padding-top: 8px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
 
 .detalle__categoria {
   display: block;
@@ -149,6 +380,7 @@
   letter-spacing: -0.5px;
   margin-bottom: 18px;
   overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .detalle__precio {
@@ -311,14 +543,43 @@
 }
 .detalle__back:hover { color: var(--accent); }
 
+/* ============================================================
+   REGLA GLOBAL ANTI-COLISIÓN
+   Garantiza que [hidden] siempre gane a display: flex/grid/block
+   ============================================================ */
+.detalle [hidden] {
+  display: none !important;
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 1024px) {
-  .detalle__grid { grid-template-columns: 1fr; gap: 40px; }
-  .detalle__main-image { aspect-ratio: 3 / 2; }
+  .detalle__grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .detalle__carousel { aspect-ratio: 3 / 2; }
   .detalle { padding: 30px 24px 80px; }
 }
+
 @media (max-width: 560px) {
   .detalle__variante { grid-template-columns: 1fr; gap: 6px; }
   .detalle__precio { font-size: 1.8rem; }
   .detalle__actions .button { width: 100%; justify-content: center; }
+
+  /* Flechas principales un poco más chicas en móviles */
+  .detalle__nav {
+    width: 38px; height: 38px;
+    font-size: 13px;
+  }
+  .detalle__nav--prev { left: 10px; }
+  .detalle__nav--next { right: 10px; }
+
+  /* Miniaturas más compactas */
+  .detalle__thumb {
+    width: 72px;
+    height: 72px;
+  }
+
+  /* Flechas de miniaturas más pequeñas */
+  .detalle__thumbs-nav {
+    width: 28px; height: 28px;
+    font-size: 10px;
+  }
 }
