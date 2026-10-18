@@ -266,3 +266,38 @@ body.carrito-open { overflow: hidden; }
   border-radius: 4px;
 }
 .carrito-drawer__body::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ============================================================
+   RESPONSIVE MÓVIL — orden del header: [🛒] [☰]
+   El brand queda a la izquierda; carrito y hamburguesa a la derecha.
+   ============================================================ */
+@media (max-width: 900px) {
+  .site-header {
+    /* aseguramos que brand quede izq y los iconos der */
+    justify-content: space-between;
+  }
+
+  /* El brand ocupa su espacio natural, sin crecer */
+  .site-header > .brand {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  /* El carrito va primero (segundo icono visualmente desde la izq del bloque der) */
+  .site-header > .carrito-btn {
+    order: 2;
+    margin-left: auto;   /* empuja el bloque de iconos a la derecha */
+    margin-right: 8px;   /* separación con la hamburguesa */
+  }
+
+  /* La hamburguesa va después (extremo derecho) */
+  .site-header > .menu-toggle {
+    order: 3;
+    margin-right: 0;
+  }
+
+  /* El nav móvil se mantiene como panel (no afecta al layout del header) */
+  .site-header > .main-nav {
+    order: 4; /* irrelevante porque está en position:fixed en móvil */
+  }
+}

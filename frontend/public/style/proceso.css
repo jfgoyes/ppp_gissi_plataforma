@@ -61,7 +61,7 @@
   max-width: 480px;
 }
 
-/* ---------- STEPS (compartido con nosotros) ---------- */
+/* ---------- STEPS (del proceso) ---------- */
 .steps {
   display: flex;
   flex-direction: column;

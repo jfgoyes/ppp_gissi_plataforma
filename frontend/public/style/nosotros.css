@@ -214,6 +214,43 @@
 }
 .mv-copy strong { color: #fff; }
 
+/* ---------- STEPS (de la misión y visión) ---------- */
+.steps {
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+}
+.steps > div {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.steps > div:last-child { border-bottom: 1px solid var(--line); }
+.steps > div > b {
+  flex-shrink: 0;
+  width: 44px;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--accent);
+  line-height: 1;
+}
+.steps > div > div > strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  color: var(--fg);
+}
+.steps > div > div > span {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
 /* ---------- MAPA ---------- */
 .map-section {
   padding: 100px 40px 60px;
@@ -336,4 +373,8 @@
   .stat-grid   { grid-template-columns: 1fr; }
   .mv-tag      { font-size: 9px; padding: 12px 16px; }
   .contact-cards .card { padding: 28px 20px; }
+}
+@media (max-width: 560px) {
+  .steps > div { gap: 16px; }
+  .steps > div > b { width: 36px; font-size: 1.3rem; }
 }

@@ -409,24 +409,24 @@ footer small {
 
   .main-nav {
     position: fixed;
-    top: 78px; left: 0;
+    top: 0; left: 0;
     width: 100%;
-    height: calc(100vh - 78px);
+    height: 100vh;              /* cubre SIEMPRE toda la pantalla */
     background: var(--bg);
     flex-direction: column;
     align-items: flex-start;
-    padding: 40px 30px;
+    padding: 100px 30px 40px;   /* 100px = 78 header + 22 margen interno (no afecta al layout) */
     gap: 24px;
     transform: translateX(-100%);
     transition: transform 0.35s ease;
     border-top: 1px solid var(--line);
     z-index: 999;
+    overflow-y: auto;            /* si el menú es largo, hace scroll interno */
   }
   .main-nav.active { transform: translateX(0); }
   .main-nav a { font-size: 16px; }
 
   .menu-toggle { display: flex; }
-  .header-cta { display: none; }
 
   .section-heading { flex-direction: column; align-items: flex-start; gap: 16px; }
 
