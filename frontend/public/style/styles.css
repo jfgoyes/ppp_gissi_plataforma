@@ -388,6 +388,51 @@ footer small {
   transform: translateY(-4px);
 }
 
+/* ============================================================
+   9.1. Botón outline accent (reutilizable: proceso, nosotros, maps, …)
+   - Reposo: borde + texto blanco (hereda de .button.outline)
+   - Hover:  fondo naranja, borde naranja, texto negro
+   ============================================================ */
+.btn-outline-accent span,
+.btn-outline-accent i {
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.btn-outline-accent:hover,
+.btn-outline-accent:focus {
+  /* Fondo transparente: NO se toca background */
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-outline-accent:hover span,
+.btn-outline-accent:hover i,
+.btn-outline-accent:focus span,
+.btn-outline-accent:focus i {
+  color: var(--accent);
+}
+
+.btn-outline-accent:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Variante sólida: fondo naranja + texto negro en hover ---------- */
+.btn-outline-accent.is-solid:hover,
+.btn-outline-accent.is-solid:focus {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0a0a0a;
+}
+
+.btn-outline-accent.is-solid:hover span,
+.btn-outline-accent.is-solid:hover i,
+.btn-outline-accent.is-solid:focus span,
+.btn-outline-accent.is-solid:focus i {
+  color: #0a0a0a;
+}
+
 /* ---------- 10. HEADER EN PÁGINAS INTERNAS ---------- */
 .inner-header { position: fixed; } /* mantener fijo, igual que index */
 

@@ -52,7 +52,6 @@ const carrusel = {
 
   get total() { return this.imagenes.length; },
 
-  // Ir a un índice válido (sin wrap-around)
   ir(indice) {
     if (this.total === 0) return;
     const nuevo = Math.max(0, Math.min(indice, this.total - 1));
@@ -69,7 +68,6 @@ const carrusel = {
 
   render() {
     if (this.total === 0) {
-      // Sin imágenes: no hay nada que pintar
       if (slidesWrap) slidesWrap.style.transform = 'translateX(0)';
       if (btnPrev)  btnPrev.hidden = true;
       if (btnNext)  btnNext.hidden = true;
@@ -79,18 +77,14 @@ const carrusel = {
       return;
     }
 
-    // 1) Desplazamiento
     slidesWrap.style.transform = `translateX(-${this.indice * 100}%)`;
 
-    // 2) ¿Hay vecinos a izquierda/derecha? (sin wrap-around)
     const hayIzquierda = this.indice > 0;
     const hayDerecha   = this.indice < this.total - 1;
 
-    // 3) Flechas inteligentes
     if (btnPrev) btnPrev.hidden = !hayIzquierda;
     if (btnNext) btnNext.hidden = !hayDerecha;
 
-    // 4) Dots y contador: se ocultan si NO hay ambas direcciones
     const ambasDirecciones = hayIzquierda && hayDerecha;
 
     if (dotsWrap) {
@@ -109,7 +103,6 @@ const carrusel = {
       }
     }
 
-    // 5) Miniaturas: sincronizar activa y scroll
     if (thumbsWrap && !thumbsWrapOut?.hidden) {
       thumbsWrap.querySelectorAll('.detalle__thumb').forEach((t, i) => {
         t.classList.toggle('is-active', i === this.indice);
@@ -122,7 +115,6 @@ const carrusel = {
           block: 'nearest',
           inline: 'center'
         });
-        // Actualizar flechas de miniaturas tras el scroll
         setTimeout(actualizarFlechasThumbs, 300);
       } else {
         actualizarFlechasThumbs();
@@ -133,7 +125,6 @@ const carrusel = {
 
 // ============================================================
 // Flechas de miniaturas
-// Se activan cuando hay MÁS de 6 imágenes (o cuando hay overflow real)
 // ============================================================
 const actualizarFlechasThumbs = () => {
   if (!thumbsWrap || !thumbsPrev || !thumbsNext) return;
@@ -143,7 +134,6 @@ const actualizarFlechasThumbs = () => {
   const scrollLeft  = thumbsWrap.scrollLeft;
   const maxScroll   = thumbsWrap.scrollWidth - thumbsWrap.clientWidth;
 
-  // Mostrar flechas si hay más de 6 imágenes O si hay overflow real
   const necesitaNavegacion = total > 6 || hayOverflow;
 
   if (!necesitaNavegacion) {
@@ -152,9 +142,7 @@ const actualizarFlechasThumbs = () => {
     return;
   }
 
-  // Hay miniaturas a la izquierda si ya se scrolleó algo
   const hayIzquierda = scrollLeft > 2;
-  // Hay miniaturas a la derecha si aún queda por scrollear
   const hayDerecha   = scrollLeft < maxScroll - 2;
 
   thumbsPrev.hidden = !hayIzquierda;
@@ -168,8 +156,19 @@ const escAttr = (str = '') =>
   String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
              .replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-const resolverImagen = (url) => {
-  if (!url) return `https://placehold.co/1200x800/1a1a1a/ffffff?text=GISSI`;
+/**
+ * Resuelve una URL de imagen.
+ * - Si `url` existe: la devuelve tal cual (absoluta) o prefijada con API_BASE.
+ * - Si `url` es falsy: devuelve un placeholder con el nombre del producto
+ *   (encoded para no romper la URL con tildes/espacios/&) o "GISSI" como fallback.
+ */
+const resolverImagen = (url, nombreProducto = '') => {
+  if (!url) {
+    const texto = nombreProducto
+      ? encodeURIComponent(nombreProducto)
+      : 'GISSI';
+    return `https://placehold.co/1200x800/1a1a1a/ffffff?text=${texto}`;
+  }
   return url.startsWith('http') ? url : `${API_BASE}${url}`;
 };
 
@@ -208,10 +207,9 @@ const mostrarError = (msg = 'No se pudo cargar el producto.') => {
 };
 
 // ============================================================
-// Render
+// Render — GALERÍA
 // ============================================================
 const renderGaleria = (imagenes) => {
-  // Normalizar
   const lista = Array.isArray(imagenes) && imagenes.length > 0
     ? imagenes
     : [{ producto_imagen_url: null, producto_imagen_alt: null }];
@@ -219,19 +217,20 @@ const renderGaleria = (imagenes) => {
   const sinImagen = !Array.isArray(imagenes) || imagenes.length === 0;
   const multiples = lista.length > 1;
 
+  // Nombre real del producto para el placeholder de imágenes ausentes
+  const nombreReal = productoActual?.producto_nombre || '';
+
   carrusel.imagenes = lista;
   carrusel.indice   = 0;
 
-  // ---- SLIDES ----
   slidesWrap.innerHTML = lista.map((img, i) => `
     <img
-      src="${resolverImagen(img.producto_imagen_url)}"
+      src="${resolverImagen(img.producto_imagen_url, nombreReal)}"
       alt="${escAttr(img.producto_imagen_alt || productoActual.producto_nombre)}"
       loading="${i === 0 ? 'eager' : 'lazy'}"
       draggable="false">
   `).join('');
 
-  // ---- DOTS ----
   if (dotsWrap) {
     dotsWrap.hidden = !multiples;
     dotsWrap.innerHTML = multiples
@@ -250,7 +249,6 @@ const renderGaleria = (imagenes) => {
     });
   }
 
-  // ---- MINIATURAS (solo si > 1) ----
   if (thumbsWrap && thumbsWrapOut) {
     if (multiples) {
       thumbsWrapOut.hidden = false;
@@ -259,7 +257,7 @@ const renderGaleria = (imagenes) => {
                 class="detalle__thumb ${i === 0 ? 'is-active' : ''}"
                 data-index="${i}"
                 aria-label="Ver imagen ${i + 1}">
-          <img src="${resolverImagen(img.producto_imagen_url)}"
+          <img src="${resolverImagen(img.producto_imagen_url, nombreReal)}"
                alt="${escAttr(img.producto_imagen_alt || '')}"
                loading="lazy"
                draggable="false">
@@ -272,9 +270,6 @@ const renderGaleria = (imagenes) => {
         });
       });
 
-      // Reset scroll al inicio y actualizar flechas.
-      // Triple rAF para asegurar que el layout ya incluyó las miniaturas
-      // y el navegador ya calculó scrollWidth/clientWidth reales.
       thumbsWrap.scrollLeft = 0;
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -288,7 +283,6 @@ const renderGaleria = (imagenes) => {
     }
   }
 
-  // ---- Flechas y contador: los maneja carrusel.render() ----
   if (counterEl) counterEl.hidden = !multiples;
   if (btnPrev)   btnPrev.hidden   = sinImagen || !multiples;
   if (btnNext)   btnNext.hidden   = sinImagen || !multiples;
@@ -296,31 +290,39 @@ const renderGaleria = (imagenes) => {
   carrusel.render();
 };
 
-const renderStock = (stockTotal) => {
-  let clase = 'detalle__stock--agotado';
-  let texto = 'Agotado';
-  if (stockTotal > 10) {
-    clase = 'detalle__stock--disponible';
-    texto = `Disponible · ${stockTotal} unidades`;
-  } else if (stockTotal > 0) {
-    clase = 'detalle__stock--bajo';
-    texto = `Últimas ${stockTotal} unidades`;
-  }
-  elStock.className = `detalle__stock ${clase}`;
-  elStock.innerHTML = `<i class="fa-solid fa-boxes-stacked"></i> ${texto}`;
+// ============================================================
+// Render — BAJO PEDIDO (reemplaza al antiguo renderStock)
+// ============================================================
+const renderBajoPedido = () => {
+  if (!elStock) return;
+  elStock.className = 'detalle__bajo-pedido';
+  elStock.innerHTML = `
+    <i class="fa-solid fa-scissors"></i>
+    <strong>Fabricado bajo pedido</strong>
+    <span>Personalizamos según tallas, colores, cantidades y acabados.</span>`;
 };
 
+// ============================================================
+// Render — TALLAS
+// ============================================================
 const renderTallas = (tallas) => {
   if (!tallas || tallas.length === 0) { secTallas.hidden = true; return; }
   secTallas.hidden = false;
+  secTallas.querySelector('h3').innerHTML =
+    `<i class="fa-solid fa-ruler"></i> Tallas`;
   elTallas.innerHTML = tallas
     .map(t => `<span class="detalle__chip">${escAttr(t.nombre)}</span>`)
     .join('');
 };
 
+// ============================================================
+// Render — COLORES
+// ============================================================
 const renderColores = (colores) => {
   if (!colores || colores.length === 0) { secColores.hidden = true; return; }
   secColores.hidden = false;
+  secColores.querySelector('h3').innerHTML =
+    `<i class="fa-solid fa-palette"></i> Colores`;
   elColores.innerHTML = colores.map(c => `
     <span class="detalle__chip detalle__chip--color">
       <span class="detalle__chip-dot" style="background:${colorToHex(c.nombre)}"></span>
@@ -329,57 +331,76 @@ const renderColores = (colores) => {
   `).join('');
 };
 
+// ============================================================
+// Render — VARIANTES (deduplica talla+color, ignora stock)
+// ============================================================
 const renderVariantes = (variantes) => {
   if (!variantes || variantes.length === 0) { secVariantes.hidden = true; return; }
   secVariantes.hidden = false;
-  elVariantes.innerHTML = variantes.map(v => {
-    const stock = Number(v.inventario_stock) || 0;
-    let claseStock = 'detalle__variante-stock';
-    let textoStock = `${stock} en stock`;
-    if (stock === 0) {
-      claseStock += ' is-out';
-      textoStock = 'Agotado';
-    } else if (stock <= 5) {
-      claseStock += ' is-low';
-      textoStock = `Solo ${stock}`;
-    }
-    return `
-      <div class="detalle__variante">
-        <span class="detalle__variante-talla">Talla <b>${escAttr(v.talla_nombre)}</b></span>
-        <span class="detalle__variante-color">
-          <span class="detalle__chip-dot" style="background:${colorToHex(v.color_nombre)}"></span>
-          ${escAttr(v.color_nombre)}
-        </span>
-        <span class="${claseStock}">${textoStock}</span>
-      </div>`;
-  }).join('');
+  secVariantes.querySelector('h3').innerHTML =
+    `<i class="fa-solid fa-boxes-stacked"></i> Combinaciones`;
+
+  const combos = [...new Map(
+    variantes.map(v => [
+      `${v.talla_nombre}|${v.color_nombre}`,
+      { talla: v.talla_nombre, color: v.color_nombre }
+    ])
+  ).values()];
+
+  elVariantes.innerHTML = combos.map(v => `
+    <div class="detalle__variante">
+      <span class="detalle__variante-talla">Talla <b>${escAttr(v.talla)}</b></span>
+      <span class="detalle__variante-color">
+        <span class="detalle__chip-dot" style="background:${colorToHex(v.color)}"></span>
+        ${escAttr(v.color)}
+      </span>
+      <span class="detalle__variante-stock">Bajo pedido</span>
+    </div>
+  `).join('');
 };
 
+// ============================================================
+// Render — INFO
+// ============================================================
 const renderInfo = (p) => {
   bcNombre.textContent    = p.producto_nombre;
   elCategoria.textContent = p.categoria_nombre || 'General';
   elNombre.textContent    = p.producto_nombre;
-  elPrecio.textContent    = `$${parseFloat(p.producto_precio).toFixed(2)}`;
+
+  const precioNum = parseFloat(p.producto_precio).toFixed(2);
+  elPrecio.innerHTML = `
+    $${precioNum}
+    <small>precio referencial · el valor final se confirma al cotizar</small>`;
+
   elDescripcion.textContent =
     p.producto_descripcion || 'Prenda personalizable de la colección GISSI.';
 
   badge.hidden = !p.producto_destacado;
+  if (!badge.hidden) badge.textContent = '⭐ Diseño destacado';
 
-  renderStock(p.stock_total || 0);
+  renderBajoPedido();
   renderTallas(p.tallas);
   renderColores(p.colores);
   renderVariantes(p.variantes);
+
+  if (btnCarrito) {
+    btnCarrito.innerHTML = `<i class="fa-solid fa-cart-plus"></i> Agregar al carrito`;
+  }
+  if (btnWsp) {
+    btnWsp.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp`;
+  }
 
   document.title = `${p.producto_nombre} | GISSI | Textiles Los Pastos`;
 };
 
 // ============================================================
-// Acciones
+// Acciones (carrito se conserva con la misma API)
 // ============================================================
 const configurarAcciones = (p) => {
+  const nombreProd = p?.producto_nombre || '';
   const imagenPrincipal = p.imagenes?.[0]?.producto_imagen_url
-    ? resolverImagen(p.imagenes[0].producto_imagen_url)
-    : resolverImagen(p.producto_imagen);
+    ? resolverImagen(p.imagenes[0].producto_imagen_url, nombreProd)
+    : resolverImagen(p.producto_imagen, nombreProd);
 
   btnCarrito.onclick = () => {
     if (window.GissiCarrito && typeof window.GissiCarrito.agregar === 'function') {
@@ -395,7 +416,7 @@ const configurarAcciones = (p) => {
   };
 
   const waFallback = `https://wa.me/593993939058?text=${encodeURIComponent(
-    `Hola GISSI, me interesa el producto "${p.producto_nombre}" (código ${p.producto_id}). ¿Podrían darme más información?`
+    `Hola GISSI, me interesa el diseño "${p.producto_nombre}" (código ${p.producto_id}). ¿Me pueden dar más información?`
   )}`;
   btnWsp.href = waFallback;
 
@@ -447,7 +468,6 @@ const cargarProducto = async () => {
     estado.innerHTML = '';
     detalle.hidden = false;
 
-    // Recalcular flechas de miniaturas después de mostrarse
     requestAnimationFrame(() => {
       requestAnimationFrame(() => actualizarFlechasThumbs());
     });
@@ -459,7 +479,7 @@ const cargarProducto = async () => {
 };
 
 // ============================================================
-// Eventos del carrusel principal (una sola vez)
+// Eventos del carrusel principal
 // ============================================================
 if (btnPrev) btnPrev.addEventListener('click', () => carrusel.anterior());
 if (btnNext) btnNext.addEventListener('click', () => carrusel.siguiente());

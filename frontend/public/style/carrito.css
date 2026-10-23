@@ -160,6 +160,16 @@ body.carrito-open { overflow: hidden; }
   color: var(--accent);
   letter-spacing: 0.5px;
 }
+/* Etiqueta "ref." inyectada por carrito.js */
+.carrito-item__precio small {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: 4px;
+  font-weight: 400;
+}
 .carrito-item__qty {
   display: inline-flex;
   align-items: center;
@@ -215,8 +225,23 @@ body.carrito-open { overflow: hidden; }
   color: var(--muted);
   margin-bottom: 8px;
 }
-.carrito-vacio p { margin: 0; font-size: 0.95rem; }
-.carrito-vacio__sub { font-size: 0.82rem; opacity: 0.75; }
+.carrito-vacio p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.carrito-vacio__sub {
+  font-size: 0.82rem;
+  opacity: 0.75;
+  max-width: 280px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+.carrito-drawer [hidden],
+.carrito-vacio[hidden],
+.carrito-footer[hidden] {
+  display: none !important;
+}
 
 /* ---------- Footer ---------- */
 .carrito-footer {
@@ -238,15 +263,37 @@ body.carrito-open { overflow: hidden; }
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
+  /* "Total referencial" ocupa más ancho; permitimos wrap suave */
+  max-width: 55%;
+  line-height: 1.3;
 }
 .carrito-total strong {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: var(--accent);
   letter-spacing: 0.5px;
 }
-.carrito-wa { width: 100%; justify-content: center; }
+
+/* Nota explicativa inyectada por carrito.js (bajo el total) */
+.carrito-nota {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: -2px 0 10px;
+  padding: 10px 12px;
+  background: rgba(255, 90, 31, 0.06);
+  border-left: 2px solid var(--accent);
+  border-radius: 3px;
+}
+
+.carrito-wa {
+  width: 100%;
+  justify-content: center;
+}
 .carrito-wa i { font-size: 1.15rem; }
+
 .carrito-vaciar {
   padding: 8px;
   font-family: var(--font-mono);
@@ -273,7 +320,6 @@ body.carrito-open { overflow: hidden; }
    ============================================================ */
 @media (max-width: 900px) {
   .site-header {
-    /* aseguramos que brand quede izq y los iconos der */
     justify-content: space-between;
   }
 
@@ -283,7 +329,7 @@ body.carrito-open { overflow: hidden; }
     flex: 0 0 auto;
   }
 
-  /* El carrito va primero (segundo icono visualmente desde la izq del bloque der) */
+  /* El carrito va primero (segundo icono visualmente) */
   .site-header > .carrito-btn {
     order: 2;
     margin-left: auto;   /* empuja el bloque de iconos a la derecha */
@@ -296,8 +342,8 @@ body.carrito-open { overflow: hidden; }
     margin-right: 0;
   }
 
-  /* El nav móvil se mantiene como panel (no afecta al layout del header) */
+  /* El nav móvil se mantiene como panel */
   .site-header > .main-nav {
-    order: 4; /* irrelevante porque está en position:fixed en móvil */
+    order: 4; /* irrelevante en móvil por position:fixed */
   }
 }

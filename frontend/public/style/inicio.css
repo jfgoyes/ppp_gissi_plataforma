@@ -1,5 +1,5 @@
 /* ============================================================
-   GISSI — home.css  ·  Se carga SOLO en index.html
+   GISSI — inicio.css  ·  Se carga SOLO en inicio.html
    ============================================================ */
 
 /* ---------- HERO ---------- */
@@ -190,7 +190,7 @@
   background: var(--bg);
 }
 
-/* ---------- GRID DE PRODUCTOS (compartido con catalogo.html) ---------- */
+/* ---------- GRID DE PRODUCTOS ---------- */
 .catalog-grid {
   max-width: var(--container);
   margin: 0 auto;
@@ -222,17 +222,17 @@
 .catalog-image {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 3 / 2;              /* coincide con 3840×2496 → recorte mínimo */
-  background: var(--bg-3);          /* fondo por si tarda en cargar */
+  aspect-ratio: 3 / 2;
+  background: var(--bg-3);
 }
 .catalog-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;                /* recorte mínimo con 3:2 */
-  object-position: center;          /* centra el encuadre */
+  object-fit: cover;
+  object-position: center;
   display: block;
   transition: transform 0.5s ease, opacity 0.4s ease;
-  opacity: 0;                       /* fade-in al cargar (ver JS) */
+  opacity: 0;
 }
 .catalog-image img.is-loaded { opacity: 1; }
 
@@ -312,6 +312,7 @@
   flex: 1;
 }
 
+/* ---------- FOOTER DE LA TARJETA (modo bajo pedido) ---------- */
 .catalog-footer {
   display: flex;
   align-items: center;
@@ -319,13 +320,38 @@
   margin-top: 12px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
+  gap: 12px;
+  flex-wrap: wrap;
 }
-.catalog-footer strong {
+
+/* Precio referencial */
+.precio-referencial {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.precio-referencial strong {
   font-family: var(--font-display);
   font-size: 1.35rem;
   color: var(--accent);
   letter-spacing: 0.5px;
 }
+.precio-referencial .precio-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* Acciones (WhatsApp + agregar a cotización) */
+.catalog-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn-add {
   width: 40px; height: 40px;
   display: grid; place-items: center;
@@ -341,7 +367,16 @@
   transform: rotate(8deg);
 }
 
-/* ---------- ESTADOS DEL CATÁLOGO (compartido) ---------- */
+.btn-cart {
+  color: var(--accent);
+}
+.btn-cart:hover {
+  background: var(--accent);
+  color: #0a0a0a;
+  transform: rotate(8deg) scale(1.05);
+}
+
+/* ---------- ESTADOS DEL CATÁLOGO ---------- */
 .catalogo__estado {
   max-width: var(--container);
   margin: 0 auto;
@@ -395,9 +430,10 @@
   font-size: 0.88rem;
   color: var(--muted);
   opacity: 0.75;
+  max-width: 420px;
 }
 
-/* ---------- RESPONSIVE HOME ---------- */
+/* ---------- RESPONSIVE ---------- */
 @media (max-width: 1100px) {
   .hero { padding: 130px 40px 70px; }
   .catalog-section { padding: 100px 40px; }
@@ -418,18 +454,32 @@
 }
 @media (max-width: 480px) {
   .hero h1 { font-size: 2.4rem; }
+
+  .catalog-footer { flex-direction: row; align-items: center; }
+  .precio-referencial strong { font-size: 1.2rem; }
 }
 
-/* Dos botones (WhatsApp + carrito) en la tarjeta */
-.catalog-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+/* ============================================================
+   Botón "ver más" — visible en dispositivos táctiles
+   (móvil, tablet, cualquier pantalla sin hover)
+   ============================================================ */
+@media (hover: none) {
+  .catalog-image > .card-ver-mas {
+    opacity: 1;
+    transform: scale(1);
+    /* Mantener las dimensiones y posición por si el navegador
+       aplica alguna regla agresiva de accesibilidad */
+    pointer-events: auto;
+  }
 }
-.btn-cart {
-  color: var(--accent);
-}
-.btn-cart:hover {
-  background: var(--accent);
-  color: #0a0a0a;
+
+/* Fallback por ancho: algunos navegadores móviles reportan
+   hover:none de forma inconsistente; en pantallas pequeñas
+   forzamos la visibilidad también. */
+@media (max-width: 900px) {
+  .catalog-image > .card-ver-mas {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
 }

@@ -2,7 +2,7 @@
    PLATAFORMA WEB GISSI — app.js
    Conexión con el backend + renderizado dinámico
    Adaptado a interfaz 2 multi-página
-   Con integración de carrito (window.GissiCarrito)
+   Con integración de cotización (window.GissiCarrito)
    ============================================================ */
 
 // ============================================================
@@ -35,7 +35,7 @@ const mostrarCargando = () => {
     </div>`;
 };
 
-const mostrarError = (mensaje = 'No se pudieron cargar los productos.') => {
+const mostrarError = (mensaje = 'No se pudieron cargar los diseños.') => {
   if (!catalogoGrid) return;
   catalogoGrid.innerHTML = '';
   catalogoEstado.innerHTML = `
@@ -57,8 +57,8 @@ const mostrarVacio = () => {
   catalogoEstado.innerHTML = `
     <div class="catalogo__mensaje">
       <i class="fa-solid fa-box-open"></i>
-      <p>No hay productos disponibles en este momento.</p>
-      <p class="catalogo__mensaje-sub">Por favor, vuelve a intentarlo más tarde.</p>
+      <p>No hay diseños disponibles en este momento.</p>
+      <p class="catalogo__mensaje-sub">Vuelve a intentarlo más tarde o escríbenos por WhatsApp.</p>
     </div>`;
 };
 
@@ -67,7 +67,7 @@ const limpiarEstados = () => {
 };
 
 // ============================================================
-// 3. FETCH
+// 3. FETCH (idéntico al original)
 // ============================================================
 const obtenerProductos = async () => {
   const res = await fetch(`${API_URL}/productos`);
@@ -93,7 +93,7 @@ const escAttr = (str = '') =>
   String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // ============================================================
-// 5. TARJETA DE PRODUCTO
+// 5. TARJETA DE PRODUCTO (modo cotización)
 // ============================================================
 const crearTarjetaProducto = (producto) => {
   const {
@@ -117,17 +117,20 @@ const crearTarjetaProducto = (producto) => {
     imagenUrl = `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(producto_nombre)}`;
   }
 
+  // Badge de destacado — texto adaptado a "diseño destacado"
   const badge = producto_destacado
-    ? `<div class="product-card__badge">⭐ Destacado</div>`
+    ? `<div class="product-card__badge">⭐ Diseño destacado</div>`
     : '';
 
   const variants = ['dark', 'red', 'dark', 'light'];
   const variant  = variants[producto_id % variants.length];
 
-  // Fallback del href: si carrito.js no carga, al menos hay un enlace funcional
+  // Fallback del href de WhatsApp: cotización de un diseño.
+  // Si carrito.js cargó, el listener de abajo lo sobreescribe con
+  // el mensaje formateado por GissiCarrito.consultarProducto.
   const waNumero  = '593993939058';
   const waFallback = encodeURIComponent(
-    `Hola GISSI, me interesa el diseño "${producto_nombre}" (código ${producto_id}). ¿Podrían darme más información?`
+    `Hola GISSI, me interesa el diseño "${producto_nombre}" (código ${producto_id}). ¿Me pueden dar más información y cotización?`
   );
   const waUrlFallback = `https://wa.me/${waNumero}?text=${waFallback}`;
 
@@ -155,7 +158,10 @@ const crearTarjetaProducto = (producto) => {
         <h3>${producto_nombre}</h3>
         <p>${producto_descripcion || 'Ver diseño completo'}</p>
         <div class="catalog-footer">
-          <strong>${precio}</strong>
+          <div class="precio-referencial">
+            <strong>${precio}</strong>
+            <span class="precio-tag">referencial</span>
+          </div>
           <div class="catalog-actions">
             <a
               class="btn-add btn-wsp"
@@ -167,7 +173,7 @@ const crearTarjetaProducto = (producto) => {
               data-nombre="${escAttr(producto_nombre)}"
               data-precio="${producto_precio}"
               data-categoria="${escAttr(categoria_nombre || '')}"
-              aria-label="Consultar por WhatsApp sobre ${escAttr(producto_nombre)}"
+              aria-label="Consultar ${escAttr(producto_nombre)} por WhatsApp"
               title="Consultar por WhatsApp">
               <i class="fa-brands fa-whatsapp"></i>
             </a>
@@ -195,9 +201,9 @@ const renderizarCatalogo = (productos) => {
   limpiarEstados();
   catalogoGrid.innerHTML = productos.map(crearTarjetaProducto).join('');
   if (catalogCount) catalogCount.textContent = `${productos.length} diseños`;
-  console.log(`✅ ${productos.length} productos renderizados en "${paginaActual}".`);
+  console.log(`✅ ${productos.length} diseños renderizados en "${paginaActual}".`);
 
-  // Listeners de "Agregar al carrito"
+  // Listeners de "Agregar a mi cotización"
   catalogoGrid.querySelectorAll('.btn-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -211,7 +217,7 @@ const renderizarCatalogo = (productos) => {
       if (window.GissiCarrito && typeof window.GissiCarrito.agregar === 'function') {
         window.GissiCarrito.agregar(producto);
       } else {
-        console.warn('carrito.js no está cargado; no se puede agregar al carrito.');
+        console.warn('carrito.js no está cargado; no se puede agregar a la cotización.');
       }
     });
   });
@@ -234,7 +240,7 @@ const renderizarCatalogo = (productos) => {
 };
 
 // ============================================================
-// 7. FILTROS (solo catálogo)
+// 7. FILTROS (solo catálogo — lógica intacta)
 // ============================================================
 const generarFiltros = (productos) => {
   if (!filterGroup) return;
@@ -300,7 +306,7 @@ const inicializarCatalogo = async () => {
 
   } catch (error) {
     console.error('Error al cargar:', error.message);
-    mostrarError('Lo sentimos, estamos teniendo problemas para cargar los productos (Error interno del servidor).');
+    mostrarError('Lo sentimos, estamos teniendo problemas para cargar los diseños (Error interno del servidor).');
   }
 };
 

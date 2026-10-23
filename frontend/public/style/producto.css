@@ -35,7 +35,6 @@
 
 /* ---------- CONTENEDOR ---------- */
 .detalle {
-  max-width: var(--container);
   margin: 0 auto;
   padding: 40px 40px 100px;
   width: 100%;
@@ -71,8 +70,7 @@
 /* ---------- GRID PRINCIPAL ---------- */
 .detalle__grid {
   display: grid;
-  /* minmax(0, Xfr) es la clave para que el contenido interno
-     (carrusel, thumbs con scroll) NO expanda la columna. */
+  /* minmax(0, Xfr) evita que el carrusel/thumbs expandan la columna */
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 60px;
   align-items: start;
@@ -126,7 +124,7 @@
   -webkit-user-drag: none;
 }
 
-/* Badge destacado */
+/* Badge "Diseño destacado" (texto inyectado desde JS) */
 .detalle__badge {
   position: absolute;
   top: 16px; left: 16px;
@@ -234,7 +232,6 @@
   min-width: 0;
   width: 100%;
   max-width: 100%;
-  /* Sin padding lateral — las flechas se solapan sobre las miniaturas */
 }
 
 .detalle__thumbs {
@@ -274,18 +271,14 @@
   display: block;
   transition: transform 0.3s ease;
 }
-.detalle__thumb:hover {
-  border-color: var(--fg-2);
-}
-.detalle__thumb:hover img {
-  transform: scale(1.05);
-}
+.detalle__thumb:hover { border-color: var(--fg-2); }
+.detalle__thumb:hover img { transform: scale(1.05); }
 .detalle__thumb.is-active {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(255, 90, 31, 0.25);
 }
 
-/* ---------- Flechas de miniaturas (superpuestas) ---------- */
+/* ---------- Flechas de miniaturas ---------- */
 .detalle__thumbs-nav {
   position: absolute;
   top: 50%;
@@ -313,7 +306,7 @@
   transform: translateY(-50%) scale(1.08);
 }
 
-/* Degradados laterales para insinuar que hay más contenido */
+/* Degradados laterales para insinuar contenido extra */
 .detalle__thumbs-wrap::before,
 .detalle__thumbs-wrap::after {
   content: '';
@@ -333,7 +326,6 @@
   right: 0;
   background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);
 }
-/* Se muestran solo cuando la flecha correspondiente está activa */
 .detalle__thumbs-wrap:has(#detalle-thumbs-prev:not([hidden]))::before,
 .detalle__thumbs-wrap:has(#detalle-thumbs-next:not([hidden]))::after {
   opacity: 1;
@@ -341,20 +333,15 @@
 
 /* Tamaños responsivos de las miniaturas */
 @media (min-width: 768px) {
-  .detalle__thumb {
-    width: 100px;
-    height: 100px;
-  }
+  .detalle__thumb { width: 100px; height: 100px; }
 }
-
 @media (min-width: 1280px) {
-  .detalle__thumb {
-    width: 108px;
-    height: 108px;
-  }
+  .detalle__thumb { width: 108px; height: 108px; }
 }
 
-/* ---------- INFORMACIÓN ---------- */
+/* ============================================================
+   INFORMACIÓN
+   ============================================================ */
 .detalle__info {
   padding-top: 8px;
   min-width: 0;
@@ -383,6 +370,7 @@
   word-break: break-word;
 }
 
+/* Precio referencial con nota */
 .detalle__precio {
   font-family: var(--font-display);
   font-size: 2.2rem;
@@ -390,6 +378,17 @@
   letter-spacing: 0.5px;
   margin-bottom: 24px;
   line-height: 1;
+}
+.detalle__precio small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 .detalle__descripcion {
@@ -400,33 +399,38 @@
   max-width: 540px;
 }
 
-/* ---------- STOCK ---------- */
-.detalle__stock {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+/* ============================================================
+   BAJO PEDIDO — banner que reemplaza al antiguo stock
+   ============================================================ */
+.detalle__bajo-pedido {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--accent);
+  background: rgba(255, 90, 31, 0.06);
+  border-radius: 4px;
   margin-bottom: 32px;
 }
-.detalle__stock--disponible {
-  background: rgba(46, 204, 113, 0.12);
-  border: 1px solid rgba(46, 204, 113, 0.4);
-  color: #6ee7a7;
+.detalle__bajo-pedido i {
+  color: var(--accent);
+  font-size: 1.1rem;
+  margin-bottom: 2px;
 }
-.detalle__stock--bajo {
-  background: rgba(255, 190, 60, 0.12);
-  border: 1px solid rgba(255, 190, 60, 0.4);
-  color: #ffc857;
+.detalle__bajo-pedido strong {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+  color: var(--fg);
+  line-height: 1.2;
 }
-.detalle__stock--agotado {
-  background: rgba(230, 57, 70, 0.12);
-  border: 1px solid rgba(230, 57, 70, 0.4);
-  color: #ff8a8a;
+.detalle__bajo-pedido span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 /* ---------- SECCIONES ---------- */
@@ -446,7 +450,7 @@
 }
 .detalle__section h3 i { color: var(--accent); }
 
-/* ---------- CHIPS (tallas / colores) ---------- */
+/* ---------- CHIPS (tallas / colores posibles) ---------- */
 .detalle__chips {
   display: flex;
   flex-wrap: wrap;
@@ -470,9 +474,7 @@
   border-color: var(--accent);
   color: var(--accent);
 }
-.detalle__chip--color {
-  padding-left: 12px;
-}
+.detalle__chip--color { padding-left: 12px; }
 .detalle__chip-dot {
   width: 12px; height: 12px;
   border-radius: 50%;
@@ -481,7 +483,7 @@
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* ---------- VARIANTES (tabla) ---------- */
+/* ---------- COMBINACIONES POSIBLES ---------- */
 .detalle__variantes {
   display: flex;
   flex-direction: column;
@@ -516,9 +518,8 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--muted);
+  font-style: italic;
 }
-.detalle__variante-stock.is-low { color: #ffc857; }
-.detalle__variante-stock.is-out { color: #ff8a8a; }
 
 /* ---------- ACCIONES ---------- */
 .detalle__actions {
@@ -527,13 +528,20 @@
   flex-wrap: wrap;
   margin: 32px 0 28px;
 }
-.detalle__btn-wsp {
-  border-color: var(--accent);
-  color: var(--accent);
+/* ---------- Botón "Consultar por WhatsApp" ---------- */
+.detalle__btn-wsp i,
+.detalle__btn-wsp span,
+.detalle__actions .detalle__btn-wsp i,
+.detalle__actions .detalle__btn-wsp span {
+  color: inherit;
+  transition: color 0.2s ease;
 }
-.detalle__btn-wsp:hover {
-  background: var(--accent);
-  color: #0a0a0a;
+
+/* Focus accesible sin alterar el look de hover */
+.detalle__btn-wsp:focus-visible,
+.detalle__actions .detalle__btn-wsp:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .detalle__back {
@@ -551,7 +559,9 @@
   display: none !important;
 }
 
-/* ---------- RESPONSIVE ---------- */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 1024px) {
   .detalle__grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .detalle__carousel { aspect-ratio: 3 / 2; }
@@ -563,7 +573,6 @@
   .detalle__precio { font-size: 1.8rem; }
   .detalle__actions .button { width: 100%; justify-content: center; }
 
-  /* Flechas principales un poco más chicas en móviles */
   .detalle__nav {
     width: 38px; height: 38px;
     font-size: 13px;
@@ -571,13 +580,11 @@
   .detalle__nav--prev { left: 10px; }
   .detalle__nav--next { right: 10px; }
 
-  /* Miniaturas más compactas */
   .detalle__thumb {
     width: 72px;
     height: 72px;
   }
 
-  /* Flechas de miniaturas más pequeñas */
   .detalle__thumbs-nav {
     width: 28px; height: 28px;
     font-size: 10px;

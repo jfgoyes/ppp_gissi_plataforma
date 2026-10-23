@@ -1,6 +1,6 @@
 /* ============================================================
    GISSI — carrito.js
-   Carrito de compras con persistencia en localStorage
+   Carrito de cotización con persistencia en localStorage
    Checkout por WhatsApp (sin pasarela de pago)
    ============================================================ */
 
@@ -15,29 +15,44 @@ const MONEDA       = '$';
 // 1.5. PLANTILLAS DE WHATSAPP (formato nativo WA)
 // ============================================================
 // En WhatsApp: *negrita*, _cursiva_, ~tachado~, ```mono```
+
+/**
+ * Mensaje de cotización para UN producto.
+ * Usado desde producto.html y desde el botón de cada tarjeta.
+ */
 const formatearConsultaProducto = (producto) => {
-  const nombre    = String(producto?.nombre || 'Producto').trim();
+  const nombre    = String(producto?.nombre || 'Diseño').trim();
   const precio    = Number(producto?.precio);
-  const precioTxt = Number.isFinite(precio) ? `$${precio.toFixed(2)}` : '(precio a consultar)';
+  const precioTxt = Number.isFinite(precio) ? `$${precio.toFixed(2)}` : '(a confirmar)';
   const categoria = String(producto?.categoria || '').trim();
   const codigo    = producto?.id ?? '—';
 
   const lineas = [
-    `¡Hola *GISSI*! 👋`,
+    `¡Hola *Textiles Los Pastos*! 👋`,
     ``,
     `Me interesa este diseño:`,
     ``,
     `*${nombre}*`,
-    `💰 Precio: *${precioTxt}*`,
+    `💰 Precio: *${precioTxt}* _referencial_`,
     categoria ? `🏷️ Categoría: ${categoria}` : null,
     `🔖 Código: \`#${codigo}\``,
     ``,
-    `¿Podrían darme más información y disponibilidad? 🙌`
+    `📐 Datos para cotizar:`,
+    `• Tallas que necesito:`,
+    `• Colores / combinación:`,
+    `• Cantidad aproximada:`,
+    `• Personalización (escudo, nombres, números):`,
+    ``,
+    `¿Me confirman *disponibilidad*, *valor final* y *tiempo de entrega*? 🙌`
   ].filter(l => l !== null);
 
   return lineas.join('\n');
 };
 
+/**
+ * Mensaje de solicitud de cotización para TODA la selección.
+ * La suma del carrito se presenta como "total referencial".
+ */
 const formatearPedidoCarrito = (items, total) => {
   if (!Array.isArray(items) || items.length === 0) return '';
 
@@ -52,18 +67,28 @@ const formatearPedidoCarrito = (items, total) => {
   }).join('\n');
 
   return [
-    `🛒 *NUEVO PEDIDO — GISSI*`,
+    `🛒 *PEDIDO — Textiles Los Pastos*`,
     `━━━━━━━━━━━━━━━━━━━━`,
+    ``,
+    `Diseños seleccionados:`,
     ``,
     lineasProductos,
     ``,
     `━━━━━━━━━━━━━━━━━━━━`,
     `📦 Artículos: *${cantidad}*`,
-    `💵 Total: *$${totalNum.toFixed(2)}*`,
+    `💵 Total: *$${totalNum.toFixed(2)}* _referencial_`,
     ``,
-    `Quisiera coordinar el *pago* y la *entrega*. 🙌`,
+    `_El valor final se confirma al cotizar según tallas, cantidades y personalización._`,
     ``,
-    `¡Gracias por elegir GISSI! ⚽`
+    `Para preparar la cotización:`,
+    `• Tallas por diseño:`,
+    `• Colores / combinación:`,
+    `• Personalización (escudo, nombres, números):`,
+    `• Fecha deseada de entrega:`,
+    ``,
+    `¿Me envían la *cotización* y el *tiempo de confección*? 🙌`,
+    ``,
+    `¡Gracias por elegir Textiles Los Pastos! ⚽`
   ].join('\n');
 };
 
@@ -114,7 +139,7 @@ const guardarCarrito = (items) => {
 };
 
 // ============================================================
-// 3. OPERACIONES
+// 3. OPERACIONES (idénticas al original)
 // ============================================================
 const carrito = {
   items: leerCarrito(),
@@ -157,7 +182,6 @@ const carrito = {
   vaciar() {
     this.items = [];
     guardarCarrito(this.items);
-    // Aseguramos reset visual inmediato del total y del footer
     this.render();
   },
 
@@ -218,7 +242,7 @@ const carrito = {
         </div>
         <div class="carrito-item__info">
           <h4>${p.nombre}</h4>
-          <span class="carrito-item__precio">${MONEDA}${p.precio.toFixed(2)}</span>
+          <span class="carrito-item__precio">${MONEDA}${p.precio.toFixed(2)} <small>ref.</small></span>
           <div class="carrito-item__qty">
             <button class="qty-btn" data-action="menos" aria-label="Quitar uno">−</button>
             <span>${p.cantidad}</span>
@@ -255,7 +279,7 @@ const carrito = {
 
     abrirWhatsApp(mensaje);
 
-    // Cerrar el drawer y vaciar el carrito para que no se reenvíe por error
+    // Se conserva el comportamiento: cerrar y vaciar para no reenviar.
     this.vaciar();
     this.cerrarDrawer();
   }
@@ -278,7 +302,7 @@ const actualizarUI = () => {
 // 5. INYECTAR HTML DEL CARRITO (navbar + drawer)
 // ============================================================
 const inyectarCarritoUI = () => {
-  // --- Botón en navbar (antes del header-cta) ---
+  // --- Botón en navbar ---
   const header = document.querySelector('.site-header');
   if (header && !document.getElementById('carrito-btn')) {
     const btn = document.createElement('button');
@@ -299,7 +323,7 @@ const inyectarCarritoUI = () => {
     const wrap = document.createElement('div');
     wrap.innerHTML = `
       <div id="carrito-overlay" class="carrito-overlay"></div>
-      <aside id="carrito-drawer" class="carrito-drawer" aria-label="Carrito de compras">
+      <aside id="carrito-drawer" class="carrito-drawer" aria-label="Carrito">
         <header class="carrito-drawer__head">
           <h3><i class="fa-solid fa-bag-shopping"></i> Tu carrito</h3>
           <button id="carrito-cerrar" class="carrito-cerrar" aria-label="Cerrar carrito">
@@ -311,7 +335,7 @@ const inyectarCarritoUI = () => {
           <div id="carrito-vacio" class="carrito-vacio" hidden>
             <i class="fa-solid fa-cart-shopping"></i>
             <p>Tu carrito está vacío.</p>
-            <p class="carrito-vacio__sub">Explora el catálogo y agrega tus diseños favoritos.</p>
+            <p class="carrito-vacio__sub">Agrega los diseños que te interesen y envíalos por WhatsApp.</p>
           </div>
           <ul id="carrito-lista" class="carrito-lista"></ul>
         </div>
@@ -321,8 +345,11 @@ const inyectarCarritoUI = () => {
             <span>Total</span>
             <strong id="carrito-total">$0.00</strong>
           </div>
+          <p class="carrito-nota">
+            El valor final se confirma al cotizar según tallas, cantidades y personalización.
+          </p>
           <button id="carrito-wa" class="button primary carrito-wa">
-            <i class="fa-brands fa-whatsapp"></i> Finalizar por WhatsApp
+            <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
           </button>
           <button id="carrito-vaciar" class="carrito-vaciar">Vaciar carrito</button>
         </footer>
@@ -354,11 +381,81 @@ const inyectarCarritoUI = () => {
     document.body.dataset.carritoListeners = '1';
   }
 
+  // --- Botones WhatsApp genéricos con data-accion="wsp-*" ---
+  // Permite que cualquier HTML (proceso.html, nosotros.html, …) delegue
+  // el mensaje predefinido a carrito.js, en lugar de hardcodearlo en el href.
+  // El href del HTML se deja como fallback por si este script no carga.
+  inyectarHandlersWhatsAppGenericos();
+
   actualizarUI();
 };
 
+
 // ============================================================
-// 6. API PÚBLICA (para app.js)
+// 5.1. MENSAJES PREDEFINIDOS DE WHATSAPP POR CONTEXTO
+// ============================================================
+// Se usan cuando el HTML tiene <a data-accion="wsp-XXX">.
+// El número destino es siempre WA_NUMERO (593993939058).
+const MENSAJES_WSP_PREDEFINIDOS = {
+  // Botón "Cotizar por WhatsApp" de proceso.html
+  proceso: () => [
+    `¡Hola *Textiles Los Pastos*! 👋`,
+    ``,
+    `Quisiera información para cotizar diseños.`,
+    ``,
+    `• Tipo de prenda (escolar / trabajo / deportivo):`,
+    `• Cantidad aproximada:`,
+    `• Tallas:`,
+    `• Colores / personalización (escudo, nombres, números):`,
+    `• Fecha deseada de entrega:`,
+    ``,
+    `¿Me pueden asesorar y enviar una cotización? 🙌`
+  ].join('\n'),
+
+  // Botón "Contáctanos" de nosotros.html
+  nosotros: () => [
+    `¡Hola *Textiles Los Pastos*! 👋`,
+    ``,
+    `Me gustaría saber más sobre sus diseños y su proceso de confección.`,
+    ``,
+    `¿Me pueden dar más información? 🙌`
+  ].join('\n'),
+
+  // Fallback genérico (cualquier [data-accion="wsp-general"])
+  general: () => [
+    `¡Hola *Textiles Los Pastos*! 👋`,
+    ``,
+    `Quisiera más información sobre sus diseños. 🙌`
+  ].join('\n')
+};
+
+
+// ============================================================
+// 5.2. HANDLER GENÉRICO PARA BOTONES WHATSAPP
+// ============================================================
+const inyectarHandlersWhatsAppGenericos = () => {
+  document.querySelectorAll('[data-accion^="wsp-"]').forEach(el => {
+    // Idempotente: no enganchar dos veces el mismo botón
+    if (el.dataset.wspBound === '1') return;
+    el.dataset.wspBound = '1';
+
+    el.addEventListener('click', (e) => {
+      // El slug después de "wsp-": wsp-proceso -> proceso, wsp-nosotros -> nosotros
+      const slug  = el.dataset.accion.replace(/^wsp-/, '').trim();
+      const build = MENSAJES_WSP_PREDEFINIDOS[slug] || MENSAJES_WSP_PREDEFINIDOS.general;
+      const msg   = build();
+
+      // Si por alguna razón el mapa no produjo nada, dejamos que el href haga su trabajo
+      if (!msg) return;
+
+      e.preventDefault();
+      abrirWhatsApp(msg);
+    });
+  });
+};
+
+// ============================================================
+// 6. API PÚBLICA (para app.js y producto.js — MISMA FIRMA)
 // ============================================================
 window.GissiCarrito = {
   agregar:  (producto) => carrito.agregar(producto),
@@ -368,7 +465,7 @@ window.GissiCarrito = {
   total:    () => carrito.total(),
   cantidad: () => carrito.cantidadTotal(),
 
-  // Consulta individual con mensaje formateado
+  // Consulta individual con mensaje formateado (cotización)
   consultarProducto: (producto) => {
     const msg = formatearConsultaProducto(producto);
     abrirWhatsApp(msg);
