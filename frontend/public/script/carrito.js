@@ -7,7 +7,7 @@
 // ============================================================
 // 1. CONFIGURACIÓN
 // ============================================================
-const CARRITO_KEY  = 'gissi_carrito_v1';
+const CARRITO_KEY  = 'gissi_deportivo_carrito_v1';
 const WA_NUMERO    = '593993939058';
 const MONEDA       = '$';
 
