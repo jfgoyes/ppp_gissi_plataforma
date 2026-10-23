@@ -271,7 +271,7 @@
   transform: scale(1);
 }
 .card-ver-mas:hover {
-  background: #ff7a3f;
+  background: color-mix(in srgb, var(--accent) 80%, #fff);
   transform: scale(1.1) rotate(8deg) !important;
 }
 

@@ -12,8 +12,8 @@
   --fg-2:      #c9c9c4;
   --muted:     #7a7a76;
   --line:      #232323;
-  --accent:    #ff5a1f;
-  --accent-2:  #e63946;
+  --accent:    #3b82f6;
+  --accent-2:  #2563eb;
 
   --font-display: 'Oswald', sans-serif;
   --font-body:    'Manrope', sans-serif;
@@ -238,8 +238,8 @@ section[id] { scroll-margin-top: 90px; }
   font-weight: 700;
 }
 .button.primary:hover {
-  background: #ff7a3f;
-  border-color: #ff7a3f;
+  background: color-mix(in srgb, var(--accent) 80%, #fff);
+  border-color: color-mix(in srgb, var(--accent) 80%, #fff);
   transform: translateY(-2px);
 }
 .button.outline {
@@ -376,7 +376,7 @@ footer small {
   transform: translateY(10px);
   transition: var(--transition);
   z-index: 900;
-  box-shadow: 0 10px 30px rgba(255, 90, 31, 0.4);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 .back-to-top.visible {
   opacity: 1;
@@ -384,7 +384,7 @@ footer small {
   transform: translateY(0);
 }
 .back-to-top:hover {
-  background: #ff7a3f;
+  background: color-mix(in srgb, var(--accent) 80%, #fff);
   transform: translateY(-4px);
 }
 
@@ -481,4 +481,147 @@ footer small {
 @media (max-width: 480px) {
   .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; }
   footer .footer-brand { font-size: 1.8rem; }
+}
+
+/* ============================================================
+   SELECTOR DE TEMA
+   Botón circular fijo + panel de swatches.
+   Posición: esquina inferior IZQUIERDA.
+   Solo cambia --accent/--accent-2 vía theme.js.
+   ============================================================ */
+
+/* ---------- Botón flotante ---------- */
+.theme-toggle {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;                        /* ← antes right */
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #0a0a0a;
+  border-radius: 50%;
+  font-size: 18px;
+  z-index: 950;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 45%, transparent);
+  transition: transform 0.28s ease, background 0.28s ease,
+              box-shadow 0.28s ease, color 0.28s ease;
+}
+.theme-toggle:hover {
+  transform: translateY(-3px) rotate(-8deg);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.theme-toggle.is-open {
+  transform: rotate(45deg);
+}
+.theme-toggle.is-open:hover {
+  transform: rotate(45deg) scale(1.05);
+}
+
+/* En móvil: mismo nivel que .back-to-top, sin colisión
+   (back-to-top está a la derecha, theme-toggle a la izquierda) */
+@media (max-width: 480px) {
+  .theme-toggle {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+    bottom: 20px;                    /* misma altura que .back-to-top */
+    left: 20px;                      /* ← antes right */
+  }
+}
+
+/* ---------- Panel de swatches ---------- */
+.theme-panel {
+  position: fixed;
+  bottom: 92px;                      /* por encima del botón (30 + 50 + 12) */
+  left: 30px;                        /* ← antes right */
+  width: 240px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  z-index: 949;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.96);
+  transform-origin: bottom left;     /* ← antes bottom right */
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+.theme-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.theme-panel__title {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.theme-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+/* ---------- Swatch (opción de tema) ---------- */
+.theme-swatch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  transition: var(--transition);
+  cursor: pointer;
+  text-align: left;
+}
+.theme-swatch:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+.theme-swatch.is-active {
+  border-color: var(--accent);
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-3));
+}
+
+.theme-swatch__color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.2s ease;
+}
+.theme-swatch:hover .theme-swatch__color,
+.theme-swatch.is-active .theme-swatch__color {
+  transform: scale(1.12);
+}
+
+.theme-swatch__name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* En móvil: panel alineado al botón izquierdo, por encima de él */
+@media (max-width: 480px) {
+  .theme-panel {
+    left: 20px;                      /* ← antes right */
+    bottom: 72px;                    /* 20 (bottom botón) + 44 (alto) + 8 (gap) */
+    width: min(240px, calc(100vw - 40px));
+  }
 }
