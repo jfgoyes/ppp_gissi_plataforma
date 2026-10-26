@@ -51,12 +51,39 @@
         <p>Elige un modelo para verlo en grande y hacerlo completamente tuyo.</p>
       </div>
 
-      <!-- Toolbar con filtros (se llenarán dinámicamente desde app.js) -->
+      <!-- Toolbar con buscador, filtros y acciones -->
       <div class="catalog-toolbar">
+        <!-- Buscador en tiempo real -->
+        <div class="catalog-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="search"
+            id="catalog-search"
+            class="catalog-search__input"
+            placeholder="Buscar por nombre, categoría o color…"
+            autocomplete="off"
+            aria-label="Buscar diseños">
+          <button
+            type="button"
+            id="catalog-search-clear"
+            class="catalog-search__clear"
+            aria-label="Limpiar búsqueda"
+            hidden>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Filtros por categoría (se generan desde app.js) -->
         <div class="filter-group" id="filter-group">
           <a class="filter active" href="#" data-category="all">Todos</a>
-          <!-- Los filtros de categoría se generan desde app.js -->
         </div>
+
+        <!-- Botón limpiar filtros (visible solo si hay filtros activos) -->
+        <button type="button" id="catalog-limpiar" class="catalog-limpiar" hidden>
+          <i class="fa-solid fa-rotate-left"></i> Limpiar filtros
+        </button>
+
+        <!-- Contador de resultados -->
         <span id="catalogCount">Cargando…</span>
       </div>
 

@@ -12,6 +12,15 @@ const SUBQUERY_IMAGEN_PRINCIPAL = `
    LIMIT 1) AS producto_imagen
 `;
 
+// Subconsulta reutilizable para traer los colores únicos del producto
+// (vía inventario → color), concatenados para búsqueda por texto.
+const SUBQUERY_COLORES = `
+  (SELECT GROUP_CONCAT(DISTINCT co.color_nombre ORDER BY co.color_id SEPARATOR ', ')
+   FROM inventario i
+   INNER JOIN color co ON i.color_id = co.color_id
+   WHERE i.producto_id = p.producto_id) AS producto_colores
+`;
+
 const ProductoModel = {
 
   obtenerTodos: async () => {
@@ -19,7 +28,8 @@ const ProductoModel = {
       SELECT p.producto_id, p.producto_nombre, p.producto_descripcion,
              p.producto_precio, p.categoria_id, c.categoria_nombre,
              p.producto_destacado,
-             ${SUBQUERY_IMAGEN_PRINCIPAL}
+             ${SUBQUERY_IMAGEN_PRINCIPAL},
+             ${SUBQUERY_COLORES}
       FROM producto p
       INNER JOIN categoria c ON p.categoria_id = c.categoria_id
       ORDER BY p.producto_id ASC
@@ -32,7 +42,8 @@ const ProductoModel = {
       SELECT p.producto_id, p.producto_nombre, p.producto_descripcion,
              p.producto_precio, p.categoria_id, c.categoria_nombre,
              p.producto_destacado,
-             ${SUBQUERY_IMAGEN_PRINCIPAL}
+             ${SUBQUERY_IMAGEN_PRINCIPAL},
+             ${SUBQUERY_COLORES}
       FROM producto p
       INNER JOIN categoria c ON p.categoria_id = c.categoria_id
       WHERE p.producto_id = ?
@@ -45,7 +56,8 @@ const ProductoModel = {
       SELECT p.producto_id, p.producto_nombre, p.producto_descripcion,
              p.producto_precio, p.categoria_id, c.categoria_nombre,
              p.producto_destacado,
-             ${SUBQUERY_IMAGEN_PRINCIPAL}
+             ${SUBQUERY_IMAGEN_PRINCIPAL},
+             ${SUBQUERY_COLORES}
       FROM producto p
       INNER JOIN categoria c ON p.categoria_id = c.categoria_id
       WHERE p.producto_destacado = TRUE

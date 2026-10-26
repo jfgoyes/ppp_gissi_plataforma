@@ -23,9 +23,20 @@ const paginaActual = (() => {
 })();
 
 // ============================================================
-// 2. ESTADOS UI
+// 1.5. ESTADO DE FILTROS DEL CATÁLOGO
 // ============================================================
-const mostrarCargando = () => {
+const estadoFiltros = {
+  categoria: 'all',   // 'all' | nombre de categoría en minúsculas
+  busqueda: '',       // texto libre del buscador
+  productos: []       // productos originales cargados del backend
+};
+
+// ============================================================
+// 2. ESTADOS UI
+//    (todas como `function` para que el hoisting evite
+//     problemas de orden entre funciones que se referencian)
+// ============================================================
+function mostrarCargando() {
   if (!catalogoGrid) return;
   catalogoGrid.innerHTML = '';
   catalogoEstado.innerHTML = `
@@ -33,9 +44,9 @@ const mostrarCargando = () => {
       <i class="fa-solid fa-spinner fa-spin"></i>
       <p>Cargando diseños…</p>
     </div>`;
-};
+}
 
-const mostrarError = (mensaje = 'No se pudieron cargar los diseños.') => {
+function mostrarError(mensaje = 'No se pudieron cargar los diseños.') {
   if (!catalogoGrid) return;
   catalogoGrid.innerHTML = '';
   catalogoEstado.innerHTML = `
@@ -49,9 +60,35 @@ const mostrarError = (mensaje = 'No se pudieron cargar los diseños.') => {
 
   const btn = document.getElementById('btn-reintentar');
   if (btn) btn.addEventListener('click', inicializarCatalogo);
-};
+}
 
-const mostrarVacio = () => {
+function mostrarSinResultados(texto, categoria) {
+  if (!catalogoGrid) return;
+
+  const partes = [];
+  if (texto) partes.push(`"${texto}"`);
+  if (categoria !== 'all') partes.push(`categoría "${categoria}"`);
+
+  const detalle = partes.length
+    ? `que coincidan con ${partes.join(' en ')}`
+    : 'con esos filtros';
+
+  catalogoGrid.innerHTML = '';
+  catalogoEstado.innerHTML = `
+    <div class="catalogo__mensaje">
+      <i class="fa-solid fa-magnifying-glass-minus"></i>
+      <p>No encontramos diseños ${detalle}.</p>
+      <p class="catalogo__mensaje-sub">Prueba con otro término o limpia los filtros.</p>
+      <button class="button outline catalogo__reintentar" id="btn-limpiar-vacio">
+        <i class="fa-solid fa-rotate-left"></i> Limpiar filtros
+      </button>
+    </div>`;
+
+  document.getElementById('btn-limpiar-vacio')
+    ?.addEventListener('click', limpiarTodosLosFiltros);
+}
+
+function mostrarVacio() {
   if (!catalogoGrid) return;
   catalogoGrid.innerHTML = '';
   catalogoEstado.innerHTML = `
@@ -60,44 +97,78 @@ const mostrarVacio = () => {
       <p>No hay diseños disponibles en este momento.</p>
       <p class="catalogo__mensaje-sub">Vuelve a intentarlo más tarde o escríbenos por WhatsApp.</p>
     </div>`;
-};
+}
 
-const limpiarEstados = () => {
+function limpiarEstados() {
   if (catalogoEstado) catalogoEstado.innerHTML = '';
-};
+}
+
+function limpiarTodosLosFiltros() {
+  estadoFiltros.categoria = 'all';
+  estadoFiltros.busqueda  = '';
+
+  // UI: input y botón clear
+  const input    = document.getElementById('catalog-search');
+  const btnClear = document.getElementById('catalog-search-clear');
+  if (input)    input.value = '';
+  if (btnClear) btnClear.hidden = true;
+
+  // UI: chips de categoría
+  if (filterGroup) {
+    filterGroup.querySelectorAll('.filter').forEach(b => {
+      b.classList.toggle('active', b.dataset.category === 'all');
+    });
+  }
+
+  aplicarFiltros();
+}
+
+function actualizarBotonLimpiar() {
+  const btn = document.getElementById('catalog-limpiar');
+  if (!btn) return;
+  const hayFiltros =
+    estadoFiltros.categoria !== 'all' ||
+    estadoFiltros.busqueda.trim() !== '';
+  btn.hidden = !hayFiltros;
+}
 
 // ============================================================
-// 3. FETCH (idéntico al original)
+// 3. FETCH (con retraso artificial de desarrollo)
 // ============================================================
-const obtenerProductos = async () => {
-  await new Promise(resolve => setTimeout(resolve, 1000)) // Retraso artificial.
+async function obtenerProductos() {
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Retraso artificial.
   const res = await fetch(`${API_URL}/productos`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   if (!data || !Array.isArray(data.data)) throw new Error('Respuesta inválida');
   return data.data;
-};
+}
 
-const obtenerDestacados = async () => {
-  await new Promise(resolve => setTimeout(resolve, 1000)) // Retraso artificial.
+async function obtenerDestacados() {
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Retraso artificial.
   const res = await fetch(`${API_URL}/productos/destacados`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   if (!data || !Array.isArray(data.data)) throw new Error('Respuesta inválida');
   return data.data;
-};
+}
 
 // ============================================================
 // 4. HELPERS
 // ============================================================
 // Escapa comillas dobles para meter el nombre en un atributo HTML
-const escAttr = (str = '') =>
-  String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function escAttr(str = '') {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 // ============================================================
 // 5. TARJETA DE PRODUCTO (modo cotización)
 // ============================================================
-const crearTarjetaProducto = (producto) => {
+function crearTarjetaProducto(producto) {
   const {
     producto_id,
     producto_nombre,
@@ -119,7 +190,6 @@ const crearTarjetaProducto = (producto) => {
     imagenUrl = `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(producto_nombre)}`;
   }
 
-  // Badge de destacado — texto adaptado a "diseño destacado"
   const badge = producto_destacado
     ? `<div class="product-card__badge">⭐ Diseño destacado</div>`
     : '';
@@ -127,10 +197,8 @@ const crearTarjetaProducto = (producto) => {
   const variants = ['dark', 'red', 'dark', 'light'];
   const variant  = variants[producto_id % variants.length];
 
-  // Fallback del href de WhatsApp: cotización de un diseño.
-  // Si carrito.js cargó, el listener de abajo lo sobreescribe con
-  // el mensaje formateado por GissiCarrito.consultarProducto.
-  const waNumero  = '593993939058';
+  // Fallback del href de WhatsApp (si carrito.js no cargó)
+  const waNumero   = '593993939058';
   const waFallback = encodeURIComponent(
     `Hola GISSI, me interesa el diseño "${producto_nombre}" (código ${producto_id}). ¿Me pueden dar más información y cotización?`
   );
@@ -194,18 +262,17 @@ const crearTarjetaProducto = (producto) => {
         </div>
       </div>
     </article>`;
-};
+}
 
 // ============================================================
-// 6. RENDERIZAR
+// 6. LISTENERS DE LAS TARJETAS (idempotentes por render)
+//    Como se llama después de cada `innerHTML = ...`, los
+//    listeners anteriores ya no existen; no hay duplicación.
 // ============================================================
-const renderizarCatalogo = (productos) => {
-  limpiarEstados();
-  catalogoGrid.innerHTML = productos.map(crearTarjetaProducto).join('');
-  if (catalogCount) catalogCount.textContent = `${productos.length} diseños`;
-  console.log(`✅ ${productos.length} diseños renderizados en "${paginaActual}".`);
+function reengancharListenersTarjetas() {
+  if (!catalogoGrid) return;
 
-  // Listeners de "Agregar a mi cotización"
+  // Agregar a cotización
   catalogoGrid.querySelectorAll('.btn-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -215,8 +282,7 @@ const renderizarCatalogo = (productos) => {
         precio: Number(btn.dataset.precio),
         imagen: btn.dataset.imagen
       };
-
-      if (window.GissiCarrito && typeof window.GissiCarrito.agregar === 'function') {
+      if (window.GissiCarrito?.agregar) {
         window.GissiCarrito.agregar(producto);
       } else {
         console.warn('carrito.js no está cargado; no se puede agregar a la cotización.');
@@ -224,10 +290,10 @@ const renderizarCatalogo = (productos) => {
     });
   });
 
-  // Listeners del botón WhatsApp individual (mensaje formateado desde carrito.js)
+  // WhatsApp individual
   catalogoGrid.querySelectorAll('[data-accion="wsp-producto"]').forEach(link => {
     link.addEventListener('click', (e) => {
-      if (window.GissiCarrito && typeof window.GissiCarrito.consultarProducto === 'function') {
+      if (window.GissiCarrito?.consultarProducto) {
         e.preventDefault();
         window.GissiCarrito.consultarProducto({
           id:        Number(link.dataset.id),
@@ -236,15 +302,79 @@ const renderizarCatalogo = (productos) => {
           categoria: link.dataset.categoria
         });
       }
-      // Si carrito.js no está cargado, se deja el href fallback y se abre igual
     });
   });
-};
+}
 
 // ============================================================
-// 7. FILTROS (solo catálogo — lógica intacta)
+// 6.5. RENDERIZAR CATÁLOGO
 // ============================================================
-const generarFiltros = (productos) => {
+function renderizarCatalogo(productos) {
+  if (!catalogoGrid) return;
+  limpiarEstados();
+  catalogoGrid.innerHTML = productos.map(crearTarjetaProducto).join('');
+  if (catalogCount) {
+    catalogCount.textContent = productos.length === 1
+      ? '1 diseño'
+      : `${productos.length} diseños`;
+  }
+  reengancharListenersTarjetas();
+  console.log(`✅ ${productos.length} diseños renderizados en "${paginaActual}".`);
+}
+
+// ============================================================
+// 7. APLICAR FILTROS COMBINADOS (categoría + búsqueda)
+// ============================================================
+function aplicarFiltros() {
+  const { categoria, busqueda, productos } = estadoFiltros;
+  const texto = busqueda.trim().toLowerCase();
+
+  const filtrados = productos.filter(p => {
+    // 1) Categoría
+    const coincideCategoria =
+      categoria === 'all' ||
+      (p.categoria_nombre || '').toLowerCase() === categoria;
+    if (!coincideCategoria) return false;
+
+    // 2) Texto (nombre, categoría, descripción, colores)
+    if (!texto) return true;
+
+    const nombre      = (p.producto_nombre      || '').toLowerCase();
+    const categoriaN  = (p.categoria_nombre     || '').toLowerCase();
+    const descripcion = (p.producto_descripcion || '').toLowerCase();
+    const colores     = (p.producto_colores     || '').toLowerCase();
+
+    return (
+      nombre.includes(texto)      ||
+      categoriaN.includes(texto)  ||
+      descripcion.includes(texto) ||
+      colores.includes(texto)
+    );
+  });
+
+  // Render (o mensaje de sin resultados)
+  if (filtrados.length === 0) {
+    mostrarSinResultados(texto, categoria);
+    if (catalogCount) catalogCount.textContent = '0 diseños';
+  } else {
+    limpiarEstados();
+    catalogoGrid.innerHTML = filtrados.map(crearTarjetaProducto).join('');
+    reengancharListenersTarjetas();
+    if (catalogCount) {
+      catalogCount.textContent = filtrados.length === 1
+        ? '1 diseño'
+        : `${filtrados.length} diseños`;
+    }
+  }
+
+  // Botón limpiar
+  actualizarBotonLimpiar();
+}
+
+// ============================================================
+// 8. FILTROS POR CATEGORÍA
+// ============================================================
+function generarFiltros(productos) {
   if (!filterGroup) return;
 
   const categorias = [...new Set(
@@ -264,28 +394,60 @@ const generarFiltros = (productos) => {
       e.preventDefault();
       filterGroup.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      const cat = btn.dataset.category;
-      const items = catalogoGrid.querySelectorAll('.catalog-item');
-
-      items.forEach(item => {
-        if (cat === 'all' || item.dataset.category === cat) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-
-      const visibles = [...items].filter(i => i.style.display !== 'none').length;
-      if (catalogCount) catalogCount.textContent = `${visibles} diseños`;
+      estadoFiltros.categoria = btn.dataset.category;
+      aplicarFiltros();
     });
   });
-};
+}
 
 // ============================================================
-// 8. INICIALIZACIÓN SEGÚN PÁGINA
+// 9. BUSCADOR EN TIEMPO REAL (con debounce e idempotencia)
 // ============================================================
-const inicializarCatalogo = async () => {
+function configurarBuscador() {
+  const input      = document.getElementById('catalog-search');
+  const btnClear   = document.getElementById('catalog-search-clear');
+  const btnLimpiar = document.getElementById('catalog-limpiar');
+  if (!input) return;
+
+  // Idempotencia: no enganchar dos veces si se llama más de una vez
+  if (input.dataset.buscadorBound === '1') return;
+  input.dataset.buscadorBound = '1';
+
+  let debounceId = null;
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceId);
+    debounceId = setTimeout(() => {
+      estadoFiltros.busqueda = input.value;
+      if (btnClear) btnClear.hidden = input.value.trim() === '';
+      aplicarFiltros();
+    }, 150);
+  });
+
+  // Enter no envía formulario
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') e.preventDefault();
+  });
+
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      input.value = '';
+      estadoFiltros.busqueda = '';
+      btnClear.hidden = true;
+      aplicarFiltros();
+      input.focus();
+    });
+  }
+
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', limpiarTodosLosFiltros);
+  }
+}
+
+// ============================================================
+// 10. INICIALIZACIÓN SEGÚN PÁGINA
+// ============================================================
+async function inicializarCatalogo() {
   if (!catalogoGrid) return;
 
   mostrarCargando();
@@ -300,20 +462,28 @@ const inicializarCatalogo = async () => {
       return;
     }
 
+    // Guardar en el estado global
+    estadoFiltros.productos = productos;
+
+    // Render inicial
     renderizarCatalogo(productos);
 
+    // Solo en catálogo: filtros + buscador + reset de estado
     if (paginaActual === 'catalogo') {
       generarFiltros(productos);
+      configurarBuscador();
+      // Reset visual + estado (necesario si venimos de un "Reintentar")
+      limpiarTodosLosFiltros();
     }
 
   } catch (error) {
     console.error('Error al cargar:', error.message);
     mostrarError('Lo sentimos, estamos teniendo problemas para cargar los diseños (Error interno del servidor).');
   }
-};
+}
 
 // ============================================================
-// 9. ARRANQUE
+// 11. ARRANQUE
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log(`app.js cargado · página: ${paginaActual}`);
