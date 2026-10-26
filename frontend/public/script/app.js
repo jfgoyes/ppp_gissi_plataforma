@@ -70,6 +70,7 @@ const limpiarEstados = () => {
 // 3. FETCH (idéntico al original)
 // ============================================================
 const obtenerProductos = async () => {
+  await new Promise(resolve => setTimeout(resolve, 1000)) // Retraso artificial.
   const res = await fetch(`${API_URL}/productos`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
@@ -78,6 +79,7 @@ const obtenerProductos = async () => {
 };
 
 const obtenerDestacados = async () => {
+  await new Promise(resolve => setTimeout(resolve, 1000)) // Retraso artificial.
   const res = await fetch(`${API_URL}/productos/destacados`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
