@@ -13,12 +13,25 @@
   const THEME_KEY = 'gissi_theme_v1';
 
   const TEMAS = {
+    // ---------- Cálidos ----------
     naranja:  { nombre: 'Naranja',  accent: '#ff5a1f', accent2: '#e63946' },
     rojo:     { nombre: 'Rojo',     accent: '#e63946', accent2: '#ff5a1f' },
-    verde:    { nombre: 'Verde',    accent: '#22c55e', accent2: '#16a34a' },
+    amarillo: { nombre: 'Amarillo', accent: '#eab308', accent2: '#f59e0b' },
+    dorado:   { nombre: 'Dorado',   accent: '#d4a017', accent2: '#b8860b' },
+
+    // ---------- Fríos ----------
     azul:     { nombre: 'Azul',     accent: '#3b82f6', accent2: '#2563eb' },
+    celeste:  { nombre: 'Celeste',  accent: '#5ac5db', accent2: '#1f9dbd' },
+    turquesa: { nombre: 'Turquesa', accent: '#14b8a6', accent2: '#0d9488' },
+
+    // ---------- Neutros / naturales ----------
+    marron:   { nombre: 'Marrón',   accent: '#a16207', accent2: '#78350f' },
+    verde:    { nombre: 'Verde',    accent: '#22c55e', accent2: '#16a34a' },
+    lima:     { nombre: 'Lima',     accent: '#84cc16', accent2: '#65a30d' },
+
+    // ---------- Vibrantes ----------
     violeta:  { nombre: 'Violeta',  accent: '#a855f7', accent2: '#7c3aed' },
-    amarillo: { nombre: 'Amarillo', accent: '#eab308', accent2: '#f59e0b' }
+    rosa:     { nombre: 'Rosa',     accent: '#ec4899', accent2: '#db2777' }
   };
 
   const DEFAULT_THEME = 'azul';

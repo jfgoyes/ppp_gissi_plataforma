@@ -534,9 +534,9 @@ footer small {
 /* ---------- Panel de swatches ---------- */
 .theme-panel {
   position: fixed;
-  bottom: 92px;                      /* por encima del botón (30 + 50 + 12) */
-  left: 30px;                        /* ← antes right */
-  width: 240px;
+  bottom: 92px;
+  left: 30px;
+  width: 480px;
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -566,7 +566,7 @@ footer small {
 
 .theme-panel__grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
