@@ -40,10 +40,15 @@
   const aplicarTema = (id) => {
     const tema = TEMAS[id] || TEMAS[DEFAULT_THEME];
     const root = document.documentElement;
+    
+    // Añadir clase de transición temporal
+    root.classList.add('theme-transitioning');
     root.style.setProperty('--accent', tema.accent);
     root.style.setProperty('--accent-2', tema.accent2);
-    // Marca en <html> para CSS si se quiere afinar algún detalle
     root.dataset.theme = TEMAS[id] ? id : DEFAULT_THEME;
+    
+    // Quitar la clase después de la transición
+    setTimeout(() => root.classList.remove('theme-transitioning'), 400);
   };
 
   const guardarTema = (id) => {

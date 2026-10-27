@@ -60,6 +60,10 @@ function mostrarError(mensaje = 'No se pudieron cargar los diseños.') {
 
   const btn = document.getElementById('btn-reintentar');
   if (btn) btn.addEventListener('click', inicializarCatalogo);
+
+  if (window.GissiToast) {
+    window.GissiToast.error('Error al cargar los diseños');
+  }
 }
 
 function mostrarSinResultados(texto, categoria) {
@@ -86,6 +90,10 @@ function mostrarSinResultados(texto, categoria) {
 
   document.getElementById('btn-limpiar-vacio')
     ?.addEventListener('click', limpiarTodosLosFiltros);
+  
+  if (window.GissiToast) {
+    window.GissiToast.error('Error al cargar los diseños');
+  }
 }
 
 function mostrarVacio() {
@@ -359,6 +367,9 @@ function aplicarFiltros() {
   } else {
     limpiarEstados();
     catalogoGrid.innerHTML = filtrados.map(crearTarjetaProducto).join('');
+    catalogoGrid.classList.remove('grid-anim');
+    void catalogoGrid.offsetWidth;  // fuerza reflow para reiniciar la animación
+    catalogoGrid.classList.add('grid-anim');
     reengancharListenersTarjetas();
     if (catalogCount) {
       catalogCount.textContent = filtrados.length === 1
@@ -369,6 +380,11 @@ function aplicarFiltros() {
 
   // Botón limpiar
   actualizarBotonLimpiar();
+
+  // UX: si el usuario está scrolleado debajo de la toolbar, subir suavemente
+  if (window.scrollY > 400) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 // ============================================================

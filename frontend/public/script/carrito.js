@@ -164,6 +164,12 @@ const carrito = {
       this.items.push(item);
     }
     guardarCarrito(this.items);
+
+    // Feedback visual
+    if (window.GissiToast) {
+      window.GissiToast.exito(`${item.nombre} agregado al carrito`);
+    }
+
     this.abrirDrawer();
   },
 

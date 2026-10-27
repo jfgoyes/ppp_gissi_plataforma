@@ -237,6 +237,22 @@
   margin-top: 12px;
 }
 
+/* ---------- BREADCRUMB ---------- */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb > span:not(.breadcrumb__current) { color: var(--line); }
+.breadcrumb__current { color: var(--accent); }
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */

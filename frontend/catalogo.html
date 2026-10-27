@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Catálogo completo de diseños GISSI | Textiles Los Pastos – Uniformes personalizados para fútbol, básquet, vóley y más.">
+  <meta name="description" content="Catálogo completo de diseños GISSI | Textiles Los Pastos – Prendas personalizadas para deporte, escolares, trabajo y más.">
   <title>Catálogo | GISSI | Textiles Los Pastos</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,6 +45,11 @@
     <section class="catalog-section">
       <div class="section-heading">
         <div>
+          <nav class="breadcrumb" aria-label="Ruta de navegación">
+            <a href="inicio.html">Inicio</a>
+            <span>›</span>
+            <span class="breadcrumb__current">Catálogo</span>
+          </nav>
           <p class="eyebrow"><span></span> Colecciones destacadas</p>
           <h2>ENCUENTRA TU<br><em>PRÓXIMO DISEÑO.</em></h2>
         </div>
@@ -96,19 +101,73 @@
   </main>
 
   <!-- ═══ FOOTER ═══ -->
-  <footer>
-    <div class="footer-brand" style="line-height:1.1">
-      GISSI<br>
-      <span style="font-size: 13px; font-weight: 500; letter-spacing: 2px; color: var(--muted);">
-        TEXTILES LOS PASTOS
-      </span>
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <!-- Columna 1: Marca + descripción -->
+      <div class="footer-col footer-col--brand">
+        <div class="footer-brand">
+          GISSI<br>
+          <span>TEXTILES LOS PASTOS</span>
+        </div>
+        <p class="footer-desc">
+          Confección de indumentaria personalizada: deportiva, escolar, laboral y a la medida.
+        </p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook" title="Facebook" rel="noopener">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a href="#" aria-label="Instagram" title="Instagram" rel="noopener">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="#" aria-label="TikTok" title="TikTok" rel="noopener">
+            <i class="fa-brands fa-tiktok"></i>
+          </a>
+          <a href="https://wa.me/593993939058" aria-label="WhatsApp" title="WhatsApp"
+            target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna 2: Enlaces rápidos -->
+      <div class="footer-col">
+        <h4>Explora</h4>
+        <ul class="footer-list">
+          <li><a href="inicio.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="proceso.html">Proceso</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 3: Contacto -->
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <ul class="footer-list footer-list--contact">
+          <li>
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Tulcán, Carchi, Ecuador</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-phone"></i>
+            <a href="tel:+593993939058">+593 99 393 9058</a>
+          </li>
+          <li>
+            <i class="fa-solid fa-envelope"></i>
+            <a href="mailto:info@textileslospastos.com">info@textileslospastos.com</a>
+          </li>
+          <li>
+            <i class="fa-solid fa-clock"></i>
+            <span>Lun – Vie: 8h00 – 18h00<br>Sáb: 9h00 – 13h00</span>
+          </li>
+        </ul>
+      </div>
     </div>
-    <p>Diseño, pasión y rendimiento para cada equipo.</p>
-    <div class="footer-links">
-      <a href="inicio.html">Inicio</a>
-      <a href="nosotros.html">Nosotros</a>
+
+    <div class="footer-bottom">
+      <small>© 2026 GISSI | Textiles Los Pastos · Asociación de Economía Solidaria Los Pastos</small>
+      <small>Hecho con dedicación en Tulcán, Ecuador</small>
     </div>
-    <small>© 2026 GISSI | Textiles Los Pastos.</small>
   </footer>
 
   <button class="back-to-top" id="back-to-top" aria-label="Volver arriba">
@@ -119,5 +178,6 @@
   <script src="public/script/script.js"></script>
   <script src="public/script/app.js"></script>
   <script src="public/script/temas.js"></script>
+  <script src="public/script/toast.js"></script>
 </body>
 </html>
