@@ -1,15 +1,35 @@
 /* ============================================================
    GISSI — temas.js
    Selector de tema basado en variables CSS.
-   - Cambia solo --accent y --accent-2 en <html>.
-   - Persiste la elección en localStorage (mismo patrón que carrito).
-   - Botón circular flotante abajo a la derecha + panel de swatches.
+   - Anti-FOUC: aplica data-theme ANTES del primer paint
+     (requiere cargarse en el <head>, sin defer/async).
+   - Persiste la elección en localStorage.
+   - Botón flotante + panel de swatches.
    - NO toca lógica de negocio, carrito, catálogo ni backend.
    ============================================================ */
 
 (function () {
   'use strict';
 
+  /* ------------------------------------------------------------
+     0. ANTI-FOUC — aplicar el tema guardado antes del primer paint
+     ------------------------------------------------------------
+     Este bloque DEBE ejecutarse antes de que el CSS se resuelva.
+     Por eso este archivo se carga en el <head>, ANTES de los
+     <link rel="stylesheet"> y SIN defer/async.
+     ------------------------------------------------------------ */
+  try {
+    var temaGuardado = localStorage.getItem('gissi_theme_v1');
+    if (temaGuardado) {
+      document.documentElement.dataset.theme = temaGuardado;
+    }
+  } catch (e) {
+    /* localStorage bloqueado (modo privado, cookies off…) → default azul del CSS */
+  }
+
+  /* ------------------------------------------------------------
+     1. CONFIGURACIÓN
+     ------------------------------------------------------------ */
   const THEME_KEY = 'gissi_theme_v1';
 
   const TEMAS = {
@@ -36,19 +56,24 @@
 
   const DEFAULT_THEME = 'azul';
 
-  // ---------- Aplicar tema ----------
-  const aplicarTema = (id) => {
-    const tema = TEMAS[id] || TEMAS[DEFAULT_THEME];
+  /* ------------------------------------------------------------
+     2. APLICAR TEMA
+     ------------------------------------------------------------
+     Con la opción B del CSS (html[data-theme="…"]), solo seteamos
+     `data-theme` en <html>. El CSS resuelve los hex.
+     `animar = false` por defecto: en el arranque NO queremos
+     transición; solo al pulsar un swatch.
+     ------------------------------------------------------------ */
+  const aplicarTema = (id, animar = false) => {
     const root = document.documentElement;
-    
-    // Añadir clase de transición temporal
-    root.classList.add('theme-transitioning');
-    root.style.setProperty('--accent', tema.accent);
-    root.style.setProperty('--accent-2', tema.accent2);
-    root.dataset.theme = TEMAS[id] ? id : DEFAULT_THEME;
-    
-    // Quitar la clase después de la transición
-    setTimeout(() => root.classList.remove('theme-transitioning'), 400);
+    const valido = TEMAS[id] ? id : DEFAULT_THEME;
+
+    if (animar) {
+      root.classList.add('theme-transitioning');
+      setTimeout(() => root.classList.remove('theme-transitioning'), 400);
+    }
+
+    root.dataset.theme = valido;
   };
 
   const guardarTema = (id) => {
@@ -60,12 +85,9 @@
     catch { return DEFAULT_THEME; }
   };
 
-  // ---------- Aplicar antes del paint ----------
-  // Se ejecuta tan pronto como el script corre (antes de DOMContentLoaded),
-  // para evitar "flash" del naranja por defecto.
-  aplicarTema(leerTema());
-
-  // ---------- Construir UI ----------
+  /* ------------------------------------------------------------
+     3. CONSTRUIR UI (botón + panel de swatches)
+     ------------------------------------------------------------ */
   const construirUI = () => {
     if (document.getElementById('theme-toggle')) return; // idempotente
 
@@ -106,7 +128,7 @@
         <span class="theme-swatch__name">${t.nombre}</span>
       `;
       sw.addEventListener('click', () => {
-        aplicarTema(id);
+        aplicarTema(id, /* animar */ true);
         guardarTema(id);
         marcarActivo(id);
         cerrarPanel();
@@ -123,7 +145,6 @@
       panel.classList.contains('is-open') ? cerrarPanel() : abrirPanel();
     });
 
-    // Cerrar al click fuera o Escape
     document.addEventListener('click', (e) => {
       if (!panel.classList.contains('is-open')) return;
       if (panel.contains(e.target) || btn.contains(e.target)) return;
@@ -133,7 +154,6 @@
       if (e.key === 'Escape') cerrarPanel();
     });
 
-    // Marcar tema activo al inicio
     marcarActivo(leerTema());
   };
 
@@ -161,7 +181,9 @@
     });
   };
 
-  // ---------- Arranque ----------
+  /* ------------------------------------------------------------
+     4. ARRANQUE
+     ------------------------------------------------------------ */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', construirUI);
   } else {

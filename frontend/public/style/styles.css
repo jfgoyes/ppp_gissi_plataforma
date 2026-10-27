@@ -12,8 +12,6 @@
   --fg-2:      #c9c9c4;
   --muted:     #7a7a76;
   --line:      #232323;
-  --accent:    #3b82f6;
-  --accent-2:  #2563eb;
 
   --font-display: 'Oswald', sans-serif;
   --font-body:    'Manrope', sans-serif;
@@ -23,6 +21,21 @@
   --radius: 4px;
   --transition: all 0.28s ease;
 }
+
+/* ---------- 1.1. TEMAS (--accent / --accent-2) ---------- */
+:root                          { --accent: #3b82f6; --accent-2: #2563eb; } /* azul = default */
+html[data-theme="naranja"]     { --accent: #ff5a1f; --accent-2: #e63946; }
+html[data-theme="rojo"]        { --accent: #e63946; --accent-2: #ff5a1f; }
+html[data-theme="amarillo"]    { --accent: #eab308; --accent-2: #f59e0b; }
+html[data-theme="dorado"]      { --accent: #d4a017; --accent-2: #b8860b; }
+html[data-theme="azul"]        { --accent: #3b82f6; --accent-2: #2563eb; } /* explícito */
+html[data-theme="celeste"]     { --accent: #5ac5db; --accent-2: #1f9dbd; }
+html[data-theme="turquesa"]    { --accent: #14b8a6; --accent-2: #0d9488; }
+html[data-theme="marron"]      { --accent: #a16207; --accent-2: #78350f; }
+html[data-theme="verde"]       { --accent: #22c55e; --accent-2: #16a34a; }
+html[data-theme="lima"]        { --accent: #84cc16; --accent-2: #65a30d; }
+html[data-theme="violeta"]     { --accent: #a855f7; --accent-2: #7c3aed; }
+html[data-theme="rosa"]        { --accent: #ec4899; --accent-2: #db2777; }
 
 /* ---------- 2. RESET ---------- */
 *, *::before, *::after {
@@ -570,8 +583,6 @@ section[id] { scroll-margin-top: 90px; }
 
   .menu-toggle { display: flex; }
 
-  .section-heading { flex-direction: column; align-items: flex-start; gap: 16px; }
-
   footer { grid-template-columns: 1fr; padding: 40px 24px 20px; }
 }
 
@@ -844,5 +855,27 @@ html.theme-transitioning *::after {
     max-width: 100%;
     font-size: 0.85rem;
     padding: 12px 14px;
+  }
+}
+
+/* ============================================================
+   SECTION-HEADING — consolidado (todas las páginas)
+   Reduce el aire en móvil/tablet para que el contenido
+   (toolbar del catálogo, grids, etc.) quede más cerca.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .section-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;              /* antes: 16px */
+    margin-bottom: 38px;    /* antes: 60px */
+  }
+}
+
+@media (max-width: 560px) {
+  .section-heading {
+    gap: 8px;
+    margin-bottom: 28px;    /* aún más compacto en móvil pequeño */
   }
 }
