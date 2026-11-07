@@ -90,10 +90,6 @@ function mostrarSinResultados(texto, categoria) {
 
   document.getElementById('btn-limpiar-vacio')
     ?.addEventListener('click', limpiarTodosLosFiltros);
-  
-  if (window.GissiToast) {
-    window.GissiToast.error('Error al cargar los diseños');
-  }
 }
 
 function mostrarVacio() {
@@ -171,6 +167,18 @@ function escAttr(str = '') {
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// ============================================================
+// 4.1. Helper: reinicia la animación escalonada del grid
+//      (misma lógica que se usa en aplicarFiltros)
+//      → Reutilizable por renderizarCatalogo y aplicarFiltros
+// ============================================================
+function animarGridEntrada() {
+  if (!catalogoGrid) return;
+  catalogoGrid.classList.remove('grid-anim');
+  void catalogoGrid.offsetWidth;   // fuerza reflow para reiniciar la animación
+  catalogoGrid.classList.add('grid-anim');
 }
 
 // ============================================================
@@ -316,6 +324,9 @@ function reengancharListenersTarjetas() {
 
 // ============================================================
 // 6.5. RENDERIZAR CATÁLOGO
+//      → Ahora también dispara la animación escalonada
+//        (necesario para inicio.html, donde no se llama a
+//        aplicarFiltros como en catalogo.html).
 // ============================================================
 function renderizarCatalogo(productos) {
   if (!catalogoGrid) return;
@@ -327,6 +338,7 @@ function renderizarCatalogo(productos) {
       : `${productos.length} diseños`;
   }
   reengancharListenersTarjetas();
+  animarGridEntrada();   // ← NUEVO: activa el degradado escalonado
   console.log(`✅ ${productos.length} diseños renderizados en "${paginaActual}".`);
 }
 
@@ -367,10 +379,8 @@ function aplicarFiltros() {
   } else {
     limpiarEstados();
     catalogoGrid.innerHTML = filtrados.map(crearTarjetaProducto).join('');
-    catalogoGrid.classList.remove('grid-anim');
-    void catalogoGrid.offsetWidth;  // fuerza reflow para reiniciar la animación
-    catalogoGrid.classList.add('grid-anim');
     reengancharListenersTarjetas();
+    animarGridEntrada();   // ← reutiliza el helper
     if (catalogCount) {
       catalogCount.textContent = filtrados.length === 1
         ? '1 diseño'
@@ -481,7 +491,7 @@ async function inicializarCatalogo() {
     // Guardar en el estado global
     estadoFiltros.productos = productos;
 
-    // Render inicial
+    // Render inicial (ya incluye animación de entrada escalonada)
     renderizarCatalogo(productos);
 
     // Solo en catálogo: filtros + buscador + reset de estado
