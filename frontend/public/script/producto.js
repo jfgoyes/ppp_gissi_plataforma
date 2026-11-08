@@ -522,6 +522,48 @@ if (thumbsWrap) {
 }
 
 // ============================================================
+// Swipe táctil en el carrusel principal (móvil)
+// ============================================================
+(function habilitarSwipe() {
+  const iniciarSwipe = () => {
+    const carousel = document.getElementById('detalle-carousel');
+    if (!carousel) return;
+
+    // Idempotencia: no enganchar dos veces si ya está enganchado
+    if (carousel.dataset.swipeBound === '1') return;
+    carousel.dataset.swipeBound = '1';
+
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    carousel.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+
+    carousel.addEventListener('touchend', (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      // Solo si el gesto es claramente horizontal
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+      if (dx < 0 && btnNext && !btnNext.hidden) carrusel.siguiente();
+      if (dx > 0 && btnPrev && !btnPrev.hidden) carrusel.anterior();
+    }, { passive: true });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciarSwipe);
+  } else {
+    iniciarSwipe();
+  }
+})();
+
+// ============================================================
 // Arranque
 // ============================================================
 document.addEventListener('DOMContentLoaded', cargarProducto);

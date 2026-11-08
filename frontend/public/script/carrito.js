@@ -104,16 +104,32 @@ const abrirWhatsApp = (mensaje) => {
 // ============================================================
 const sanitizarItem = (p) => {
   if (!p || typeof p !== 'object') return null;
+
   const id     = Number(p.id);
   const precio = Number(p.precio);
   const cant   = Number(p.cantidad);
+
   if (!Number.isFinite(id) || id <= 0) return null;
   if (!Number.isFinite(precio) || precio < 0) return null;
+
+  // Nombre: quitar etiquetas HTML, < > sueltos, truncar a 120
+  const nombreLimpio = String(p.nombre || 'Producto')
+    .replace(/<[^>]*>/g, '')
+    .replace(/[<>]/g, '')
+    .trim()
+    .slice(0, 120) || 'Producto';
+
+  // Imagen: aceptar solo http(s):// o /ruta-local, descartar javascript:, data:, etc.
+  const imagen =
+    typeof p.imagen === 'string' && /^(https?:\/\/|\/)/.test(p.imagen)
+      ? p.imagen.slice(0, 500)
+      : '';
+
   return {
     id,
-    nombre:   String(p.nombre || 'Producto'),
+    nombre: nombreLimpio,
     precio,
-    imagen:   typeof p.imagen === 'string' ? p.imagen : '',
+    imagen,
     cantidad: Number.isFinite(cant) && cant > 0 ? Math.floor(cant) : 1
   };
 };

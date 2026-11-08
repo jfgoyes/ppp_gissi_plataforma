@@ -60,6 +60,8 @@
   outline: none;
   border-color: var(--accent);
   background: var(--bg-3);
+  /* Fallback si color-mix no está soportado */
+  box-shadow: 0 0 0 3px rgba(255, 122, 31, 0.15);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 /* Quitar la "x" nativa del input[type="search"] en WebKit */
@@ -244,13 +246,13 @@
   .catalog-toolbar {
     flex-direction: column;
     align-items: stretch;
-    gap: 16px;              /* B: input → filtros  (era 10) */
-    margin-bottom: 32px;    /* D: línea → productos (era 24) */
-    padding-bottom: 24px;   /* C: filtros → línea   (era 16) */
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
   }
 
   .catalog-search {
-    flex: 0 0 auto;      /* anula el flex-basis como altura */
+    flex: 0 0 auto;
     width: 100%;
     max-width: none;
   }
@@ -280,11 +282,11 @@
   }
 }
 
-/* ---------- Móvil pequeño: apretar aún más ---------- */
+/* ---------- Móvil pequeño (consolidado) ---------- */
 @media (max-width: 560px) {
 
   .catalog-toolbar {
-    gap: 12px;
+    gap: 10px;
     margin-bottom: 24px;
     padding-bottom: 18px;
   }
@@ -303,4 +305,40 @@
     font-size: 10px;
     letter-spacing: 0.8px;
   }
+
+  #catalogCount {
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 4px 8px;
+    background: var(--bg-2);
+    border-radius: 999px;
+  }
+}
+
+/* ============================================================
+   Aviso de validación del buscador
+   ============================================================ */
+.catalog-search__aviso {
+  margin: 6px 0 0 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ff8a8a;
+  animation: fadeUp 0.25s ease;
+}
+.catalog-search__aviso[hidden] {
+  display: none !important;
+}
+
+.catalog-search__input[aria-invalid="true"] {
+  border-color: #ff5a5a;
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, 0.15);
+}
+
+/* Fallback defensivo: si catalogo.html no cargara inicio.css,
+   el aviso igual se anima (no colisiona si ya existe) */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

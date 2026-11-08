@@ -56,12 +56,10 @@
 }
 .detalle__breadcrumb a:hover { color: var(--accent); }
 
-/* Solo el separador › va en gris oscuro */
 .detalle__breadcrumb > span:not(.detalle__breadcrumb-current) {
   color: var(--line);
 }
 
-/* El nombre del producto va en naranja */
 .detalle__breadcrumb .detalle__breadcrumb-current,
 .detalle__breadcrumb > span.detalle__breadcrumb-current {
   color: var(--accent);
@@ -70,7 +68,6 @@
 /* ---------- GRID PRINCIPAL ---------- */
 .detalle__grid {
   display: grid;
-  /* minmax(0, Xfr) evita que el carrusel/thumbs expandan la columna */
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 60px;
   align-items: start;
@@ -89,15 +86,13 @@
   min-width: 0;
   width: 100%;
   max-width: 100%;
-  /* contain: layout aísla el layout interno. NO ponemos overflow: hidden
-     porque bloquearía scrollLeft en Safari. */
   contain: layout style;
 }
 
 .detalle__carousel {
   position: relative;
   aspect-ratio: 3 / 2;
-  min-height: 200px;             /* evita colapso antes de cargar imágenes */
+  min-height: 200px;
   background: var(--bg-3);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -124,7 +119,7 @@
   -webkit-user-drag: none;
 }
 
-/* Badge "Diseño destacado" (texto inyectado desde JS) */
+/* Badge "Diseño destacado" */
 .detalle__badge {
   position: absolute;
   top: 16px; left: 16px;
@@ -154,7 +149,7 @@
   color: var(--fg-2);
 }
 
-/* Flechas laterales (inteligentes: se ocultan vía [hidden]) */
+/* Flechas laterales */
 .detalle__nav {
   position: absolute;
   top: 50%;
@@ -162,6 +157,7 @@
   width: 44px; height: 44px;
   display: grid; place-items: center;
   background: rgba(10, 10, 10, 0.72);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -175,7 +171,6 @@
 .detalle__nav--prev { left: 16px; }
 .detalle__nav--next { right: 16px; }
 
-/* La flecha se muestra al hover, pero solo si NO está [hidden] */
 .detalle__carousel:hover .detalle__nav:not([hidden]) {
   opacity: 1;
   visibility: visible;
@@ -241,15 +236,15 @@
   overflow-y: hidden;
   scroll-behavior: smooth;
   padding: 4px 2px;
-  scrollbar-width: none;             /* Firefox: oculta barra */
+  scrollbar-width: none;
   min-width: 0;
   flex: 1 1 auto;
   width: 100%;
   max-width: 100%;
-  -webkit-overflow-scrolling: touch;  /* scroll suave en iOS */
+  -webkit-overflow-scrolling: touch;
 }
 .detalle__thumbs::-webkit-scrollbar {
-  display: none;                      /* WebKit: oculta barra */
+  display: none;
 }
 
 .detalle__thumb {
@@ -275,6 +270,8 @@
 .detalle__thumb:hover img { transform: scale(1.05); }
 .detalle__thumb.is-active {
   border-color: var(--accent);
+  /* Fallback si color-mix no está soportado */
+  box-shadow: 0 0 0 2px rgba(255, 122, 31, 0.25);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
@@ -286,6 +283,7 @@
   width: 28px; height: 28px;
   display: grid; place-items: center;
   background: rgba(10, 10, 10, 0.78);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -370,7 +368,6 @@
   word-break: break-word;
 }
 
-/* Precio referencial con nota */
 .detalle__precio {
   font-family: var(--font-display);
   font-size: 2.2rem;
@@ -400,7 +397,7 @@
 }
 
 /* ============================================================
-   BAJO PEDIDO — banner que reemplaza al antiguo stock
+   BAJO PEDIDO
    ============================================================ */
 .detalle__bajo-pedido {
   display: flex;
@@ -408,6 +405,8 @@
   gap: 6px;
   padding: 16px 20px;
   border-left: 3px solid var(--accent);
+  /* Fallback si color-mix no está soportado */
+  background: rgba(255, 122, 31, 0.06);
   background: color-mix(in srgb, var(--accent) 6%, transparent);
   border-radius: 4px;
   margin-bottom: 32px;
@@ -528,7 +527,6 @@
   flex-wrap: wrap;
   margin: 32px 0 28px;
 }
-/* ---------- Botón "Consultar por WhatsApp" ---------- */
 .detalle__btn-wsp i,
 .detalle__btn-wsp span,
 .detalle__actions .detalle__btn-wsp i,
@@ -537,7 +535,6 @@
   transition: color 0.2s ease;
 }
 
-/* Focus accesible sin alterar el look de hover */
 .detalle__btn-wsp:focus-visible,
 .detalle__actions .detalle__btn-wsp:focus-visible {
   outline: 2px solid var(--accent);
@@ -588,5 +585,30 @@
   .detalle__thumbs-nav {
     width: 28px; height: 28px;
     font-size: 10px;
+  }
+
+  /* Chips: scroll horizontal si hay muchas tallas/colores */
+  .detalle__chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .detalle__chip { flex: 0 0 auto; }
+}
+
+/* ============================================================
+   ACCESIBILIDAD — prefers-reduced-motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .detalle__slides,
+  .detalle__nav,
+  .detalle__thumbs-nav,
+  .detalle__thumb img {
+    transition: none;
+  }
+  .detalle__thumbs {
+    scroll-behavior: auto;
   }
 }

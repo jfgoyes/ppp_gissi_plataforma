@@ -35,9 +35,10 @@
   line-height: 1;
 }
 
-/* En móvil, moverlo al lado del menú hamburguesa */
-@media (max-width: 900px) {
-  .carrito-btn { margin-right: 8px; }
+/* En desktop, el margin-left:auto del bloque móvil NO debe aplicar
+   (el botón queda pegado al bloque de iconos de la derecha) */
+@media (min-width: 901px) {
+  .site-header > .carrito-btn { margin-left: 0; }
 }
 
 /* ---------- Overlay ---------- */
@@ -45,6 +46,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   opacity: 0;
   visibility: hidden;
@@ -59,6 +61,7 @@
   top: 0; right: 0;
   width: min(420px, 100vw);
   height: 100vh;
+  height: 100dvh;   /* navegadores modernos: respeta barra del navegador móvil */
   background: var(--bg-2);
   border-left: 1px solid var(--line);
   display: flex;
@@ -263,7 +266,6 @@ body.carrito-open { overflow: hidden; }
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
-  /* "Total referencial" ocupa más ancho; permitimos wrap suave */
   max-width: 55%;
   line-height: 1.3;
 }
@@ -283,6 +285,8 @@ body.carrito-open { overflow: hidden; }
   color: var(--muted);
   margin: -2px 0 10px;
   padding: 10px 12px;
+  /* Fallback si color-mix no está soportado */
+  background: rgba(255, 122, 31, 0.06);
   background: color-mix(in srgb, var(--accent) 6%, transparent);
   border-left: 2px solid var(--accent);
   border-radius: 3px;
@@ -332,8 +336,8 @@ body.carrito-open { overflow: hidden; }
   /* El carrito va primero (segundo icono visualmente) */
   .site-header > .carrito-btn {
     order: 2;
-    margin-left: auto;   /* empuja el bloque de iconos a la derecha */
-    margin-right: 8px;   /* separación con la hamburguesa */
+    margin-left: auto;    /* empuja el bloque de iconos a la derecha */
+    margin-right: 8px;    /* separación con la hamburguesa */
   }
 
   /* La hamburguesa va después (extremo derecho) */
@@ -345,5 +349,13 @@ body.carrito-open { overflow: hidden; }
   /* El nav móvil se mantiene como panel */
   .site-header > .main-nav {
     order: 4; /* irrelevante en móvil por position:fixed */
+  }
+}
+
+/* ---------- Accesibilidad: sin transición en prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .carrito-drawer,
+  .carrito-overlay {
+    transition: none;
   }
 }

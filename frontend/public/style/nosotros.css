@@ -358,6 +358,7 @@
   .mv-section  { grid-template-columns: 1fr; gap: 40px; padding: 100px 40px; }
   .mv-media    { max-width: 480px; margin: 0 auto; width: 100%; }
 }
+
 @media (max-width: 900px) {
   .about-hero  { padding: 70px 24px 40px; }
   .story       { padding: 70px 24px; }
@@ -368,13 +369,26 @@
   .contact-cards .card { padding: 32px 24px; }
   .map-wrap iframe { height: 340px; }
 }
+
+/* ---------- Móvil pequeño (consolidado) ---------- */
 @media (max-width: 560px) {
   .value-grid  { grid-template-columns: 1fr; }
   .stat-grid   { grid-template-columns: 1fr; }
   .mv-tag      { font-size: 9px; padding: 12px 16px; }
   .contact-cards .card { padding: 28px 20px; }
-}
-@media (max-width: 560px) {
+
   .steps > div { gap: 16px; }
   .steps > div > b { width: 36px; font-size: 1.3rem; }
+}
+
+/* ---------- Accesibilidad: sin transiciones en prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .stat-card,
+  .value-card {
+    transition: none;
+  }
+  .stat-card:hover,
+  .value-card:hover {
+    transform: none;
+  }
 }

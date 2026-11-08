@@ -110,3 +110,10 @@
   .steps > div { gap: 16px; }
   .steps > div > b { width: 36px; font-size: 1.3rem; }
 }
+
+/* ---------- Accesibilidad: sin transición en prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .process-media__img {
+    transition: none;
+  }
+}

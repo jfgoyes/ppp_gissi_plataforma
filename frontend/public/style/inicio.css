@@ -243,6 +243,7 @@
   padding: 5px 12px;
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border: 1px solid var(--line);
   border-radius: 3px;
   font-family: var(--font-mono);
@@ -434,19 +435,32 @@
   .catalog-section { padding: 100px 40px; }
   .catalog-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
     padding: 120px 24px 60px;
     min-height: auto;
   }
-  .hero-product { height: 420px; margin-top: 20px; }
-  .product-card.main-product { width: 260px; height: 340px; }
+
+  /* Hero: valores consolidados (una sola declaración) */
+  .hero-product { height: 340px; margin-top: 10px; }
+  .product-card.main-product { width: 220px; height: 290px; }
+  .hero-stamp { bottom: 16px; left: 16px; padding: 12px 16px; }
+  .hero-stamp strong { font-size: 26px; }
   .hero-footer { position: static; margin-top: 40px; }
 
   .catalog-section { padding: 80px 24px; }
   .catalog-grid { grid-template-columns: 1fr; }
+
+  /* .card-ver-mas: siempre visible en táctil / móvil */
+  .catalog-image > .card-ver-mas {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
 }
+
 @media (max-width: 480px) {
   .hero h1 { font-size: 2.4rem; }
 
@@ -454,14 +468,8 @@
   .precio-referencial strong { font-size: 1.2rem; }
 }
 
+/* ---------- TÁCTIL: .card-ver-mas siempre visible (cualquier tamaño) ---------- */
 @media (hover: none) {
-  .catalog-image > .card-ver-mas {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
-  }
-}
-@media (max-width: 900px) {
   .catalog-image > .card-ver-mas {
     opacity: 1;
     transform: scale(1);
@@ -531,7 +539,7 @@
 }
 .why-card:hover {
   transform: translateY(-6px);
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  border-color: var(--accent);
   box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
 .why-card:hover::before {
@@ -541,6 +549,7 @@
 .why-card__icon {
   width: 52px; height: 52px;
   display: grid; place-items: center;
+  background: rgba(255, 122, 31, 0.15);   /* fallback */
   background: color-mix(in srgb, var(--accent) 15%, transparent);
   color: var(--accent);
   border-radius: 50%;
@@ -576,6 +585,7 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--accent);
+  background: rgba(255, 122, 31, 0.10);   /* fallback */
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   border-radius: 3px;
 }
@@ -620,7 +630,7 @@
 }
 .more-card:hover {
   transform: translateY(-6px);
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  border-color: var(--accent);
   background: var(--bg-3);
   box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
@@ -633,6 +643,7 @@
   place-items: center;
   width: 52px; height: 52px;
   border-radius: 50%;
+  background: rgba(255, 122, 31, 0.15);   /* fallback */
   background: color-mix(in srgb, var(--accent) 15%, transparent);
   color: var(--accent);
   font-size: 1.3rem;
@@ -781,6 +792,7 @@
 }
 .stat-block:hover strong {
   transform: scale(1.08);
+  color: #ffffff;   /* fallback si no hay color-mix */
   color: color-mix(in srgb, var(--accent) 80%, #fff);
 }
 
@@ -824,7 +836,10 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 70%);
+  background: rgba(255, 122, 31, 0.10);   /* fallback */
+  background: radial-gradient(circle at center,
+              color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+              transparent 70%);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -891,7 +906,7 @@
   background: var(--bg-3);
 }
 .faq-item:hover {
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  border-color: var(--accent);   /* fallback */
 }
 
 .faq-item summary {
@@ -945,6 +960,13 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+}
+
+/* Fallback si color-mix no está soportado */
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  .cta-final {
+    background: var(--bg-2);
+  }
 }
 
 .cta-final__inner {

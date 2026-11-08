@@ -3,6 +3,10 @@
    Conexión con el backend + renderizado dinámico
    Adaptado a interfaz 2 multi-página
    Con integración de cotización (window.GissiCarrito)
+   Optimizaciones:
+     - Sin delay artificial
+     - srcset/sizes en imágenes locales (variantes -sm/-md/-lg)
+     - Validación del buscador (min/max + sanitización)
    ============================================================ */
 
 // ============================================================
@@ -33,8 +37,6 @@ const estadoFiltros = {
 
 // ============================================================
 // 2. ESTADOS UI
-//    (todas como `function` para que el hoisting evite
-//     problemas de orden entre funciones que se referencian)
 // ============================================================
 function mostrarCargando() {
   if (!catalogoGrid) return;
@@ -111,13 +113,16 @@ function limpiarTodosLosFiltros() {
   estadoFiltros.categoria = 'all';
   estadoFiltros.busqueda  = '';
 
-  // UI: input y botón clear
   const input    = document.getElementById('catalog-search');
   const btnClear = document.getElementById('catalog-search-clear');
   if (input)    input.value = '';
   if (btnClear) btnClear.hidden = true;
 
-  // UI: chips de categoría
+  // Ocultar aviso de validación si existe
+  const aviso = document.getElementById('catalog-search-aviso');
+  if (aviso) aviso.hidden = true;
+  if (input) input.removeAttribute('aria-invalid');
+
   if (filterGroup) {
     filterGroup.querySelectorAll('.filter').forEach(b => {
       b.classList.toggle('active', b.dataset.category === 'all');
@@ -137,10 +142,9 @@ function actualizarBotonLimpiar() {
 }
 
 // ============================================================
-// 3. FETCH (con retraso artificial de desarrollo)
+// 3. FETCH (sin delay artificial)
 // ============================================================
 async function obtenerProductos() {
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Retraso artificial.
   const res = await fetch(`${API_URL}/productos`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
@@ -149,7 +153,6 @@ async function obtenerProductos() {
 }
 
 async function obtenerDestacados() {
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Retraso artificial.
   const res = await fetch(`${API_URL}/productos/destacados`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
@@ -160,7 +163,6 @@ async function obtenerDestacados() {
 // ============================================================
 // 4. HELPERS
 // ============================================================
-// Escapa comillas dobles para meter el nombre en un atributo HTML
 function escAttr(str = '') {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -171,14 +173,37 @@ function escAttr(str = '') {
 
 // ============================================================
 // 4.1. Helper: reinicia la animación escalonada del grid
-//      (misma lógica que se usa en aplicarFiltros)
-//      → Reutilizable por renderizarCatalogo y aplicarFiltros
 // ============================================================
 function animarGridEntrada() {
   if (!catalogoGrid) return;
   catalogoGrid.classList.remove('grid-anim');
-  void catalogoGrid.offsetWidth;   // fuerza reflow para reiniciar la animación
+  void catalogoGrid.offsetWidth;
   catalogoGrid.classList.add('grid-anim');
+}
+
+// ============================================================
+// 4.2. Helper: construir srcset a partir de una URL de imagen
+//      locales generadas por imagenOptimizer.js
+//      /uploads/producto-123-md.webp  →  base: /uploads/producto-123
+// ============================================================
+function construirSrcset(productoImagen) {
+  if (!productoImagen) return null;
+  if (productoImagen.startsWith('http')) return null; // URL externa
+
+  // Quitar extensión (.webp, .jpg, .png...) y luego el sufijo -sm/-md/-lg
+  let base = productoImagen.replace(/\.[a-z0-9]+$/i, '');
+  base = base.replace(/-(sm|md|lg)$/, '');
+
+  // Si no se pudo quitar el sufijo, no hay variantes que ofrecer
+  if (base === productoImagen.replace(/\.[a-z0-9]+$/i, '')) return null;
+
+  return {
+    srcset:
+      `${API_BASE}${base}-sm.webp 480w, ` +
+      `${API_BASE}${base}-md.webp 960w, ` +
+      `${API_BASE}${base}-lg.webp 1600w`,
+    sizes: '(max-width: 600px) 100vw, (max-width: 900px) 50vw, 380px'
+  };
 }
 
 // ============================================================
@@ -203,8 +228,14 @@ function crearTarjetaProducto(producto) {
       ? producto_imagen
       : `${API_BASE}${producto_imagen}`;
   } else {
-    imagenUrl = `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(producto_nombre)}`;
+    imagenUrl = `https://placehold.co/600x400/1a1a1a/ffffff?text=${encodeURIComponent(producto_nombre)}`;
   }
+
+  // srcset/sizes para variantes locales
+  const srcsetData = construirSrcset(producto_imagen);
+  const srcsetAttr = srcsetData
+    ? `srcset="${srcsetData.srcset}" sizes="${srcsetData.sizes}"`
+    : '';
 
   const badge = producto_destacado
     ? `<div class="product-card__badge">⭐ Diseño destacado</div>`
@@ -226,9 +257,10 @@ function crearTarjetaProducto(producto) {
       <div class="catalog-image">
         <img
           src="${imagenUrl}"
+          ${srcsetAttr}
           alt="${escAttr(producto_nombre)}"
-          width="1200"
-          height="780"
+          width="600"
+          height="400"
           loading="lazy"
           decoding="async"
           fetchpriority="low"
@@ -281,14 +313,11 @@ function crearTarjetaProducto(producto) {
 }
 
 // ============================================================
-// 6. LISTENERS DE LAS TARJETAS (idempotentes por render)
-//    Como se llama después de cada `innerHTML = ...`, los
-//    listeners anteriores ya no existen; no hay duplicación.
+// 6. LISTENERS DE LAS TARJETAS
 // ============================================================
 function reengancharListenersTarjetas() {
   if (!catalogoGrid) return;
 
-  // Agregar a cotización
   catalogoGrid.querySelectorAll('.btn-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -306,7 +335,6 @@ function reengancharListenersTarjetas() {
     });
   });
 
-  // WhatsApp individual
   catalogoGrid.querySelectorAll('[data-accion="wsp-producto"]').forEach(link => {
     link.addEventListener('click', (e) => {
       if (window.GissiCarrito?.consultarProducto) {
@@ -324,9 +352,6 @@ function reengancharListenersTarjetas() {
 
 // ============================================================
 // 6.5. RENDERIZAR CATÁLOGO
-//      → Ahora también dispara la animación escalonada
-//        (necesario para inicio.html, donde no se llama a
-//        aplicarFiltros como en catalogo.html).
 // ============================================================
 function renderizarCatalogo(productos) {
   if (!catalogoGrid) return;
@@ -338,25 +363,23 @@ function renderizarCatalogo(productos) {
       : `${productos.length} diseños`;
   }
   reengancharListenersTarjetas();
-  animarGridEntrada();   // ← NUEVO: activa el degradado escalonado
+  animarGridEntrada();
   console.log(`✅ ${productos.length} diseños renderizados en "${paginaActual}".`);
 }
 
 // ============================================================
-// 7. APLICAR FILTROS COMBINADOS (categoría + búsqueda)
+// 7. APLICAR FILTROS COMBINADOS
 // ============================================================
 function aplicarFiltros() {
   const { categoria, busqueda, productos } = estadoFiltros;
   const texto = busqueda.trim().toLowerCase();
 
   const filtrados = productos.filter(p => {
-    // 1) Categoría
     const coincideCategoria =
       categoria === 'all' ||
       (p.categoria_nombre || '').toLowerCase() === categoria;
     if (!coincideCategoria) return false;
 
-    // 2) Texto (nombre, categoría, descripción, colores)
     if (!texto) return true;
 
     const nombre      = (p.producto_nombre      || '').toLowerCase();
@@ -372,7 +395,6 @@ function aplicarFiltros() {
     );
   });
 
-  // Render (o mensaje de sin resultados)
   if (filtrados.length === 0) {
     mostrarSinResultados(texto, categoria);
     if (catalogCount) catalogCount.textContent = '0 diseños';
@@ -380,7 +402,7 @@ function aplicarFiltros() {
     limpiarEstados();
     catalogoGrid.innerHTML = filtrados.map(crearTarjetaProducto).join('');
     reengancharListenersTarjetas();
-    animarGridEntrada();   // ← reutiliza el helper
+    animarGridEntrada();
     if (catalogCount) {
       catalogCount.textContent = filtrados.length === 1
         ? '1 diseño'
@@ -388,10 +410,8 @@ function aplicarFiltros() {
     }
   }
 
-  // Botón limpiar
   actualizarBotonLimpiar();
 
-  // UX: si el usuario está scrolleado debajo de la toolbar, subir suavemente
   if (window.scrollY > 400) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -427,7 +447,7 @@ function generarFiltros(productos) {
 }
 
 // ============================================================
-// 9. BUSCADOR EN TIEMPO REAL (con debounce e idempotencia)
+// 9. BUSCADOR EN TIEMPO REAL CON VALIDACIÓN
 // ============================================================
 function configurarBuscador() {
   const input      = document.getElementById('catalog-search');
@@ -435,22 +455,61 @@ function configurarBuscador() {
   const btnLimpiar = document.getElementById('catalog-limpiar');
   if (!input) return;
 
-  // Idempotencia: no enganchar dos veces si se llama más de una vez
+  // Idempotencia
   if (input.dataset.buscadorBound === '1') return;
   input.dataset.buscadorBound = '1';
+
+  const MAX_LEN = 60;
+  const MIN_LEN = 2;
+
+  // Quita caracteres de control y normaliza espacios
+  const sanitizar = (str) =>
+    String(str)
+      .replace(/[\u0000-\u001F\u007F]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const mostrarErrorBusqueda = (msg) => {
+    let aviso = document.getElementById('catalog-search-aviso');
+    if (!aviso) {
+      aviso = document.createElement('p');
+      aviso.id = 'catalog-search-aviso';
+      aviso.className = 'catalog-search__aviso';
+      aviso.setAttribute('role', 'alert');
+      aviso.hidden = true;
+      input.closest('.catalog-search')?.after(aviso);
+    }
+    aviso.textContent = msg || '';
+    aviso.hidden = !msg;
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  };
 
   let debounceId = null;
 
   input.addEventListener('input', () => {
     clearTimeout(debounceId);
     debounceId = setTimeout(() => {
-      estadoFiltros.busqueda = input.value;
-      if (btnClear) btnClear.hidden = input.value.trim() === '';
+      let valor = sanitizar(input.value);
+
+      // Truncar a MAX_LEN si se pegó texto muy largo
+      if (valor.length > MAX_LEN) {
+        valor = valor.slice(0, MAX_LEN);
+        input.value = valor;
+        mostrarErrorBusqueda(`Máximo ${MAX_LEN} caracteres.`);
+      } else if (valor.length > 0 && valor.length < MIN_LEN) {
+        mostrarErrorBusqueda(`Escribe al menos ${MIN_LEN} caracteres.`);
+        // No aplicamos filtro todavía: dejamos visible el estado actual
+        return;
+      } else {
+        mostrarErrorBusqueda('');
+      }
+
+      estadoFiltros.busqueda = valor;
+      if (btnClear) btnClear.hidden = valor === '';
       aplicarFiltros();
     }, 150);
   });
 
-  // Enter no envía formulario
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') e.preventDefault();
   });
@@ -460,6 +519,7 @@ function configurarBuscador() {
       input.value = '';
       estadoFiltros.busqueda = '';
       btnClear.hidden = true;
+      mostrarErrorBusqueda('');
       aplicarFiltros();
       input.focus();
     });
@@ -488,17 +548,13 @@ async function inicializarCatalogo() {
       return;
     }
 
-    // Guardar en el estado global
     estadoFiltros.productos = productos;
 
-    // Render inicial (ya incluye animación de entrada escalonada)
     renderizarCatalogo(productos);
 
-    // Solo en catálogo: filtros + buscador + reset de estado
     if (paginaActual === 'catalogo') {
       generarFiltros(productos);
       configurarBuscador();
-      // Reset visual + estado (necesario si venimos de un "Reintentar")
       limpiarTodosLosFiltros();
     }
 

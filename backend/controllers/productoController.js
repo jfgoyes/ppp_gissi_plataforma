@@ -5,6 +5,62 @@ const ProductoModel       = require('../models/productoModel');
 const ProductoImagenModel = require('../models/productoImagenModel');
 const ApiError            = require('../utils/ApiError');
 const validarId           = require('../utils/validarId');
+const { optimizarImagen } = require('../config/imagenOptimizer');
+
+// ============================================================
+// Helper: elimina del disco TODAS las variantes WebP generadas
+// por optimizarImagen (-sm, -md, -lg). El original .jpg/.png
+// también se intenta borrar por compatibilidad con imágenes
+// antiguas (subidas antes de este cambio), pero ya no se
+// generan nuevas.
+// No falla si algún archivo no existe.
+// ============================================================
+const borrarVariantesDeImagen = async (productoImagenUrl) => {
+  if (!productoImagenUrl || !productoImagenUrl.startsWith('/uploads/')) return;
+
+  const uploadsDir = path.join(__dirname, '..', 'uploads');
+
+  // 1) Quitar extensión → "producto-123-456-md"
+  // 2) Quitar sufijo de variante → "producto-123-456"
+  let baseName = path.basename(productoImagenUrl, path.extname(productoImagenUrl));
+  baseName = baseName.replace(/-(sm|md|lg)$/, '');
+
+  // Candidatos a borrar:
+  //  - Las 3 variantes WebP (siempre existen para subidas nuevas)
+  //  - Los formatos originales (por compatibilidad con subidas previas)
+  const candidatos = [
+    `${baseName}-sm.webp`,
+    `${baseName}-md.webp`,
+    `${baseName}-lg.webp`,
+    // Compatibilidad con archivos antiguos (antes del cambio)
+    `${baseName}.jpg`,
+    `${baseName}.jpeg`,
+    `${baseName}.png`,
+    `${baseName}.webp`
+  ];
+
+  const resultados = await Promise.all(
+    candidatos.map(async (nombre) => {
+      const ruta = path.join(uploadsDir, nombre);
+      try {
+        await fs.promises.unlink(ruta);
+        return { nombre, borrado: true };
+      } catch (err) {
+        // ENOENT: el archivo no existía → no es un error real
+        if (err.code === 'ENOENT') return { nombre, borrado: false, motivo: 'no existía' };
+        return { nombre, borrado: false, motivo: err.message };
+      }
+    })
+  );
+
+  // Log en dev para ver qué se intenta borrar (útil para depurar)
+  if (process.env.NODE_ENV !== 'production') {
+    const borrados = resultados.filter(r => r.borrado).map(r => r.nombre);
+    if (borrados.length > 0) {
+      console.log(`[borrarVariantes] eliminados: ${borrados.join(', ')}`);
+    }
+  }
+};
 
 const ProductoController = {
 
@@ -44,21 +100,11 @@ const ProductoController = {
     }
   },
 
-  /**
-   * Detalle completo del producto:
-   *  - datos base (nombre, precio, descripción, categoría)
-   *  - galería completa de imágenes
-   *  - variantes de inventario (talla + color + stock)
-   *  - totales derivados (stock_total, tallas[], colores[])
-   *
-   * Usado por GET /api/productos/:id/detalle
-   */
   obtenerConImagenes: async (req, res, next) => {
     try {
       const id = validarId(req.params.id);
       const producto = await ProductoModel.obtenerDetalleCompleto(id);
       if (!producto) throw new ApiError(404, `No se encontró un producto con ID ${id}`);
-
       res.json({ ok: true, data: producto });
     } catch (error) {
       console.error('Error al obtener detalle:', error.message);
@@ -69,7 +115,7 @@ const ProductoController = {
   /**
    * Crear producto.
    * Acepta multipart/form-data:
-   *  - campo "imagen"               → archivo subido
+   *  - campo "imagen"               → archivo subido (se optimiza a WebP)
    *  - campo "producto_imagen_url"  → URL externa
    * Se pueden enviar AMBOS y se guardan como 2 imágenes.
    */
@@ -85,6 +131,7 @@ const ProductoController = {
       } = req.body;
 
       if (!producto_nombre || !producto_precio) {
+        if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
         throw new ApiError(400, 'Nombre y precio son obligatorios');
       }
 
@@ -100,11 +147,26 @@ const ProductoController = {
       // 2) Registrar imágenes (si las hay)
       const imagenesRegistradas = [];
 
-      // 2a) Archivo subido → primera imagen, principal
+      // 2a) Archivo subido → optimizar y guardar variante "md" (800px) como principal
       if (req.file) {
+        let urlOptimizada = `/uploads/${req.file.filename}`; // fallback si sharp falla
+
+        try {
+          const variantes = await optimizarImagen(req.file);
+          // Preferimos la variante "md" (800px WebP) como URL pública.
+          // El frontend usará srcset para elegir sm/md/lg según viewport.
+          urlOptimizada = variantes.md || urlOptimizada;
+        } catch (sharpError) {
+          // Si la optimización falla, NO abortamos: guardamos el original.
+          console.warn(
+            'Optimización de imagen falló, se usará el original:',
+            sharpError.message
+          );
+        }
+
         const id = await ProductoImagenModel.crear({
           producto_id: productoId,
-          producto_imagen_url: `/uploads/${req.file.filename}`,
+          producto_imagen_url: urlOptimizada,
           producto_imagen_alt: producto_nombre,
           producto_imagen_orden: 0,
           producto_imagen_principal: true,
@@ -138,10 +200,6 @@ const ProductoController = {
     }
   },
 
-  /**
-   * Actualizar datos del producto.
-   * NO reemplaza imágenes. Para gestionar imágenes usa los endpoints /imagenes.
-   */
   actualizar: async (req, res, next) => {
     try {
       const id = validarId(req.params.id);
@@ -186,30 +244,39 @@ const ProductoController = {
     }
   },
 
-  /**
-   * Agregar una imagen a un producto existente.
-   * Acepta archivo o URL. Si es la primera, se marca como principal.
-   */
   agregarImagen: async (req, res, next) => {
     try {
       const productoId = validarId(req.params.id);
       const { producto_imagen_url, producto_imagen_principal } = req.body;
 
-      // Verificar que el producto existe
       const producto = await ProductoModel.obtenerPorId(productoId);
-      if (!producto) throw new ApiError(404, `Producto ${productoId} no encontrado`);
+      if (!producto) {
+        if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
+        throw new ApiError(404, `Producto ${productoId} no encontrado`);
+      }
 
       if (!req.file && (!producto_imagen_url || !producto_imagen_url.trim())) {
         throw new ApiError(400, 'Debes enviar un archivo o una URL de imagen');
       }
 
-      // ¿Es la primera imagen del producto?
       const totalActual = await ProductoImagenModel.contarPorProducto(productoId);
       const esPrimera   = totalActual === 0;
 
-      const url = req.file
-        ? `/uploads/${req.file.filename}`
-        : producto_imagen_url.trim();
+      let url;
+      if (req.file) {
+        url = `/uploads/${req.file.filename}`; // fallback
+        try {
+          const variantes = await optimizarImagen(req.file);
+          url = variantes.md || url;
+        } catch (sharpError) {
+          console.warn(
+            'Optimización de imagen falló, se usará el original:',
+            sharpError.message
+          );
+        }
+      } else {
+        url = producto_imagen_url.trim();
+      }
 
       const imagenId = await ProductoImagenModel.crear({
         producto_id: productoId,
@@ -238,8 +305,8 @@ const ProductoController = {
 
   /**
    * Eliminar una imagen del producto.
-   * Si es un archivo local, lo borra del disco también.
-   * Si era la principal, marca la siguiente como principal.
+   * Borra del disco las 3 variantes WebP (y, por compatibilidad,
+   * cualquier original .jpg/.png/.webp de imágenes antiguas).
    */
   eliminarImagen: async (req, res, next) => {
     try {
@@ -251,12 +318,12 @@ const ProductoController = {
         throw new ApiError(404, 'Imagen no encontrada para este producto');
       }
 
-      // Si es archivo local, borrarlo del disco
+      // Si es archivo local, borrar del disco todas las variantes
       if (imagen.producto_imagen_origen === 'upload' &&
           imagen.producto_imagen_url.startsWith('/uploads/')) {
-        const rutaFisica = path.join(__dirname, '..', imagen.producto_imagen_url);
-        fs.promises.unlink(rutaFisica).catch(() => {
-          console.warn('No se pudo borrar el archivo físico:', rutaFisica);
+        // No esperamos: el borrado físico no debe bloquear la respuesta HTTP
+        borrarVariantesDeImagen(imagen.producto_imagen_url).catch(err => {
+          console.warn('No se pudieron borrar variantes físicas:', err.message);
         });
       }
 
@@ -264,7 +331,6 @@ const ProductoController = {
 
       await ProductoImagenModel.eliminar(imagenId);
 
-      // Si era la principal y quedan imágenes, promover la siguiente
       if (eraPrincipal) {
         const restantes = await ProductoImagenModel.obtenerPorProducto(productoId);
         if (restantes.length > 0) {
@@ -282,9 +348,6 @@ const ProductoController = {
     }
   },
 
-  /**
-   * Marcar una imagen como principal.
-   */
   marcarImagenPrincipal: async (req, res, next) => {
     try {
       const productoId = validarId(req.params.id);
