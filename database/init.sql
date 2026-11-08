@@ -1,6 +1,6 @@
 -- ============================================================
 -- Base de datos: gissi_plataforma_db
--- Motor: MySQL
+-- Motor: MySQL (compatible con 5.7+, 8.0+, MariaDB 10.x+)
 -- ============================================================
 
 -- ============================================================
@@ -131,56 +131,179 @@ CREATE TABLE proveedor (
 );
 
 -- ============================================================
+-- Paso 2.1: Índices de rendimiento
+-- Compatible con MySQL 5.7+, 8.0+ y MariaDB 10.x+
+-- Estrategia: verificar existencia en information_schema y
+-- ejecutar CREATE INDEX dinámicamente con PREPARE/EXECUTE.
+-- Cada bloque es idempotente: se puede correr N veces sin error.
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- Índice 1: idx_producto_destacado
+-- Acelera: WHERE producto_destacado = TRUE (GET /productos/destacados)
+-- ------------------------------------------------------------
+SET @idx_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = 'gissi_plataforma_db'
+    AND table_name   = 'producto'
+    AND index_name   = 'idx_producto_destacado'
+);
+SET @sql := IF(@idx_exists = 0,
+  'CREATE INDEX idx_producto_destacado ON producto (producto_destacado)',
+  'SELECT ''idx_producto_destacado ya existe'' AS info'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
+-- Índice 2: idx_producto_categoria
+-- Acelera: JOIN producto ↔ categoria (todos los SELECT de producto)
+-- ------------------------------------------------------------
+SET @idx_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = 'gissi_plataforma_db'
+    AND table_name   = 'producto'
+    AND index_name   = 'idx_producto_categoria'
+);
+SET @sql := IF(@idx_exists = 0,
+  'CREATE INDEX idx_producto_categoria ON producto (categoria_id)',
+  'SELECT ''idx_producto_categoria ya existe'' AS info'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
+-- Índice 3: idx_inventario_producto
+-- Acelera: WHERE inventario.producto_id = ?
+--          (GET /productos/:id/detalle)
+-- ------------------------------------------------------------
+SET @idx_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = 'gissi_plataforma_db'
+    AND table_name   = 'inventario'
+    AND index_name   = 'idx_inventario_producto'
+);
+SET @sql := IF(@idx_exists = 0,
+  'CREATE INDEX idx_inventario_producto ON inventario (producto_id)',
+  'SELECT ''idx_inventario_producto ya existe'' AS info'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
+-- Índice 4: idx_inventario_talla
+-- Acelera: JOIN inventario ↔ talla (detalle de producto)
+-- ------------------------------------------------------------
+SET @idx_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = 'gissi_plataforma_db'
+    AND table_name   = 'inventario'
+    AND index_name   = 'idx_inventario_talla'
+);
+SET @sql := IF(@idx_exists = 0,
+  'CREATE INDEX idx_inventario_talla ON inventario (talla_id)',
+  'SELECT ''idx_inventario_talla ya existe'' AS info'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
+-- Índice 5: idx_inventario_color
+-- Acelera: JOIN inventario ↔ color (detalle de producto)
+-- ------------------------------------------------------------
+SET @idx_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = 'gissi_plataforma_db'
+    AND table_name   = 'inventario'
+    AND index_name   = 'idx_inventario_color'
+);
+SET @sql := IF(@idx_exists = 0,
+  'CREATE INDEX idx_inventario_color ON inventario (color_id)',
+  'SELECT ''idx_inventario_color ya existe'' AS info'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
+-- Verificación de índices creados
+-- ------------------------------------------------------------
+SELECT table_name, index_name, column_name
+FROM information_schema.statistics
+WHERE table_schema = 'gissi_plataforma_db'
+  AND index_name IN (
+    'idx_producto_destacado', 'idx_producto_categoria',
+    'idx_inventario_producto', 'idx_inventario_talla',
+    'idx_inventario_color'
+  )
+ORDER BY table_name, index_name;
+
+-- ============================================================
 -- Paso 3: Inserción de datos de prueba
 -- ============================================================
 
 -- Categorías
 INSERT INTO categoria (categoria_nombre, categoria_descripcion) VALUES
-('Escolar', 'Uniformes y prendas escolares'),
-('Trabajo', 'Ropa de trabajo y seguridad industrial'),
-('Deportivo', 'Ropa deportiva y cómoda para actividad física');
+('Escolar',      'Uniformes y prendas escolares'),
+('Trabajo',      'Ropa de trabajo y seguridad industrial'),
+('Deportivo',    'Ropa deportiva y cómoda para actividad física'),
+('Personalizada','Ropa personalizada bajo pedido');
 
 -- Tallas
 INSERT INTO talla (talla_nombre) VALUES
 ('XS'), ('S'), ('M'), ('L'), ('XL'), ('XXL');
 
--- Colores
+-- Colores: solo el genérico que usarán todos los productos bajo pedido
 INSERT INTO color (color_nombre) VALUES
-('Azul'), ('Negro'), ('Blanco'), ('Gris'), ('Verde'), ('Rojo');
+('Personalizado');
 
--- Productos
-INSERT INTO producto (producto_nombre, producto_descripcion, producto_precio, categoria_id) VALUES
-('Uniforme Escolar Primaria', 'Conjunto de camisa y pantalón para primaria', 25.50, 1),
-('Uniforme Escolar Secundaria', 'Conjunto de camisa y pantalón para secundaria', 30.00, 1),
-('Camiseta Escolar', 'Camiseta de algodón para uso escolar', 12.00, 1),
-('Pantalón Escolar', 'Pantalón de drill para uniforme escolar', 15.50, 1),
-('Falda Escolar', 'Falda plisada para uniforme escolar', 14.00, 1),
-('Overol Industrial', 'Overol de trabajo resistente para industria', 45.00, 2),
-('Camisa de Trabajo', 'Camisa de manga larga para trabajo', 22.00, 2),
-('Pantalón de Trabajo', 'Pantalón reforzado para trabajo pesado', 28.00, 2),
-('Chaqueta de Seguridad', 'Chaqueta reflectiva de alta visibilidad', 55.00, 2),
-('Botas de Seguridad', 'Botas con punta de acero para industria', 65.00, 2),
-('Camiseta Deportiva', 'Camiseta transpirable para deporte', 18.00, 3),
-('Short Deportivo', 'Short cómodo para actividad física', 15.00, 3),
-('Sudadera Deportiva', 'Sudadera con capucha para entrenamiento', 35.00, 3),
-('Pantalón Deportivo', 'Pantalón deportivo con elasticidad', 25.00, 3),
-('Conjunto Deportivo', 'Conjunto de camiseta y short deportivo', 40.00, 3),
-('Medias Deportivas', 'Par de medias para uso deportivo', 5.00, 3),
-('Buzo Escolar', 'Buzo abrigado para uniforme escolar', 28.00, 1),
-('Chaleco Escolar', 'Chaleco para uniforme escolar', 20.00, 1),
-('Camisa Formal', 'Camisa formal para uso laboral', 26.00, 2),
-('Pantalón Jeans', 'Pantalón de jeans para uso diario', 32.00, 2),
-('Uniforme Escolar de Gala para Ceremonias Especiales de Fin de Año Escolar', 'Conjunto completo de camisa, pantalón, chaleco, corbata y botones dorados con acabados premium para eventos protocolarios.', 89.99, 1);
+-- Inserción de los 20 productos para simulación
+START TRANSACTION;
 
--- Inventario (variantes producto + talla + color)
-INSERT INTO inventario (producto_id, talla_id, color_id, inventario_stock) VALUES
-(1, 2, 1, 50), (1, 3, 1, 40), (1, 4, 1, 30),
-(2, 3, 1, 45), (2, 4, 1, 35), (3, 2, 3, 60),
-(4, 3, 2, 25), (5, 3, 1, 20), (6, 4, 1, 15),
-(7, 4, 3, 30), (8, 4, 2, 40), (9, 3, 5, 10),
-(10, 4, 2, 8), (11, 3, 1, 50), (12, 3, 2, 45),
-(13, 4, 2, 20), (14, 4, 2, 25), (15, 3, 1, 30),
-(19, 3, 3, 35), (20, 4, 1, 40);
+INSERT INTO producto (producto_nombre, producto_descripcion, producto_precio, categoria_id, producto_destacado) VALUES
+('Producto 1',  'Descripción genérica del Producto 1.  Registro de prueba; será reemplazado por datos reales.',  10.00, 4, FALSE),
+('Producto 2',  'Descripción genérica del Producto 2.  Registro de prueba; será reemplazado por datos reales.',  20.00, 4, FALSE),
+('Producto 3',  'Descripción genérica del Producto 3.  Registro de prueba; será reemplazado por datos reales.',  30.00, 4, FALSE),
+('Producto 4',  'Descripción genérica del Producto 4.  Registro de prueba; será reemplazado por datos reales.',  40.00, 4, FALSE),
+('Producto 5',  'Descripción genérica del Producto 5.  Registro de prueba; será reemplazado por datos reales.',  50.00, 4, FALSE),
+('Producto 6',  'Descripción genérica del Producto 6.  Registro de prueba; será reemplazado por datos reales.',  60.00, 4, FALSE),
+('Producto 7',  'Descripción genérica del Producto 7.  Registro de prueba; será reemplazado por datos reales.',  70.00, 4, FALSE),
+('Producto 8',  'Descripción genérica del Producto 8.  Registro de prueba; será reemplazado por datos reales.',  80.00, 4, FALSE),
+('Producto 9',  'Descripción genérica del Producto 9.  Registro de prueba; será reemplazado por datos reales.',  90.00, 4, FALSE),
+('Producto 10', 'Descripción genérica del Producto 10. Registro de prueba; será reemplazado por datos reales.', 100.00, 4, FALSE),
+('Producto 11', 'Descripción genérica del Producto 11. Registro de prueba; será reemplazado por datos reales.', 110.00, 4, FALSE),
+('Producto 12', 'Descripción genérica del Producto 12. Registro de prueba; será reemplazado por datos reales.', 120.00, 4, FALSE),
+('Producto 13', 'Descripción genérica del Producto 13. Registro de prueba; será reemplazado por datos reales.', 130.00, 4, FALSE),
+('Producto 14', 'Descripción genérica del Producto 14. Registro de prueba; será reemplazado por datos reales.', 140.00, 4, FALSE),
+('Producto 15', 'Descripción genérica del Producto 15. Registro de prueba; será reemplazado por datos reales.', 150.00, 4, FALSE),
+('Producto 16', 'Descripción genérica del Producto 16. Registro de prueba; será reemplazado por datos reales.', 160.00, 4, FALSE),
+('Producto 17', 'Descripción genérica del Producto 17. Registro de prueba; será reemplazado por datos reales.', 170.00, 4, FALSE),
+('Producto 18', 'Descripción genérica del Producto 18. Registro de prueba; será reemplazado por datos reales.', 180.00, 4, FALSE),
+('Producto 19', 'Descripción genérica del Producto 19. Registro de prueba; será reemplazado por datos reales.', 190.00, 4, FALSE),
+('Producto 20', 'Descripción genérica del Producto 20. Registro de prueba; será reemplazado por datos reales.', 200.00, 4, FALSE);
+
+COMMIT;
+
+-- Inserción de las variantes de inventario para los 20 productos simulados
+START TRANSACTION;
+
+INSERT INTO inventario (producto_id, talla_id, color_id, inventario_stock)
+SELECT
+    p.producto_id,
+    t.talla_id,
+    co.color_id,
+    0
+FROM producto p
+CROSS JOIN talla t
+JOIN color co ON co.color_nombre = 'Personalizado'
+WHERE p.producto_nombre LIKE 'Producto %'
+  AND p.producto_nombre REGEXP '^Producto ([1-9]|1[0-9]|20)$';
+
+COMMIT;
 
 -- Clientes
 INSERT INTO cliente (cliente_nombre, cliente_cedula, cliente_telefono, cliente_correo) VALUES
@@ -291,47 +414,58 @@ DROP TABLE IF EXISTS proveedor;
 -- Sentencias para realizar pruebas
 -- ============================================================
 
--- Categorías (siempre serán estas 3)
+-- Categorías
 INSERT INTO categoria (categoria_nombre, categoria_descripcion) VALUES
-  ('Escolar',  'Uniformes y prendas escolares'),
-  ('Trabajo',  'Ropa de trabajo y seguridad industrial'),
-  ('Deportivo','Ropa deportiva y cómoda para actividad física');
+('Escolar', 'Uniformes y prendas escolares'),
+('Trabajo', 'Ropa de trabajo y seguridad industrial'),
+('Deportivo', 'Ropa deportiva y cómoda para actividad física'),
+('Personalizada', 'Ropa personalizada bajo pedido');
 
--- Tallas (en orden de menor a mayor para que el ORDER BY se vea bien)
+-- Tallas
 INSERT INTO talla (talla_nombre) VALUES
-  ('XS'), ('S'), ('M'), ('L'), ('XL'), ('XXL');
+('XS'), ('S'), ('M'), ('L'), ('XL'), ('XXL');
 
--- Colores base
+-- Color base
 INSERT INTO color (color_nombre) VALUES
-  ('Azul'), ('Negro'), ('Blanco'), ('Gris'), ('Verde'), ('Rojo');
+  ('Personalizado');
 
 SELECT * FROM categoria;
 SELECT * FROM talla;
 SELECT * FROM color;
 
 -- ============================================================
--- PLANTILLA: Registrar producto con inventario (sin imagen)
--- Las imágenes se agregan luego vía Postman con:
---   POST /api/productos/:id/imagenes
+-- SECCIÓN 0: VERIFICACIÓN PREVIA
+-- Ejecutar esta verificación antes de insertar productos
 -- ============================================================
 
--- ---------- DATOS A REEMPLAZAR ----------
-SET @nombre       = 'Camiseta Deportiva Transpirable GISSI';
-SET @descripcion  = 'Camiseta deportiva de tejido transpirable. Manga corta, cuello redondo y costuras planas para evitar roces. Ideal para fútbol, running y entrenamiento diario.';
-SET @precio       = 24.90;
-SET @categoria_id = 3;          -- 1=Escolar, 2=Trabajo, 3=Deportivo
-SET @destacado    = TRUE;
+-- Confirmar IDs de categorías
+SELECT categoria_id, categoria_nombre FROM categoria;
+-- Resultado esperado:
+-- 1 = Escolar | 2 = Trabajo | 3 = Deportivo | 4 = Personalizada
 
--- ---------- IDs DE REFERENCIA (verificar antes) ----------
--- Tallas:  1=XS, 2=S, 3=M, 4=L, 5=XL, 6=XXL
--- Colores: 1=Azul, 2=Negro, 3=Blanco, 4=Gris, 5=Verde, 6=Rojo
+-- Confirmar IDs de tallas
+SELECT talla_id, talla_nombre FROM talla;
+-- 1=XS, 2=S, 3=M, 4=L, 5=XL, 6=XXL
+
+-- Confirmar IDs de colores
+SELECT color_id, color_nombre FROM color;
+-- 1=Personalizado
 
 -- ============================================================
--- EJECUCIÓN
+-- SECCIÓN 1: DATOS DEL PRODUCTO
+-- Reemplazar cada variable por los datos reales
+-- ============================================================
+SET @nombre       = 'Camiseta (Personalizada)';
+SET @descripcion  = 'Bajo pedido se personalizan colores, escudo, nombres, números y acabados.';
+SET @precio       = 8.75;              -- DECIMAL(10,2)
+SET @categoria_id = 4;                 -- 1 = Escolar | 2 = Trabajo | 3 = Deportivo | 4 = Personalizada
+SET @destacado    = FALSE;             -- TRUE / FALSE
+
+-- ============================================================
+-- SECCIÓN 2: INSERTAR PRODUCTO
 -- ============================================================
 START TRANSACTION;
 
--- 1) Producto base
 INSERT INTO producto
   (producto_nombre, producto_descripcion, producto_precio,
    categoria_id, producto_destacado)
@@ -340,34 +474,21 @@ VALUES
 
 SET @pid = LAST_INSERT_ID();
 
--- 2) Inventario: variantes talla × color × stock
---    Ajusta las filas según lo que realmente tenga el producto.
+-- ============================================================
+-- SECCIÓN 3: VARIANTES DEL PRODUCTO (bajo pedido)
+-- Editar/eliminar filas según tallas y colores REALES del producto
+-- ============================================================
+
 INSERT INTO inventario (producto_id, talla_id, color_id, inventario_stock) VALUES
-  (@pid, 3, 1, 1),   -- M, Azul
-  (@pid, 4, 1, 1),   -- L, Azul
-  (@pid, 3, 2, 0),   -- M, Negro
-  (@pid, 4, 2, 0);   -- L, Negro
+  (@pid, 1, 1, 0),   -- XS  - Color Personalizado
+  (@pid, 2, 1, 0),   -- S  - Color Personalizado
+  (@pid, 3, 1, 0),   -- M  - Color Personalizado
+  (@pid, 4, 1, 0),   -- L  - Color Personalizado
+  (@pid, 5, 1, 0),   -- XL  - Color Personalizado
+  (@pid, 6, 1, 0);   -- XXL  - Color Personalizado
+
+-- Si el producto SOLO tiene una talla/color, dejar una sola fila
+-- Si NO tiene variantes (producto único), usar una combinación genérica:
+--   (@pid, 3, 1, 0)   -- M - Azul (representativa)
 
 COMMIT;
-
--- ============================================================
--- VERIFICACIÓN
--- ============================================================
-SELECT @pid AS nuevo_producto_id;
-
-SELECT p.producto_id, p.producto_nombre, p.producto_precio,
-       c.categoria_nombre, p.producto_destacado
-FROM producto p
-INNER JOIN categoria c ON p.categoria_id = c.categoria_id
-WHERE p.producto_id = @pid;
-
-SELECT t.talla_nombre, co.color_nombre, i.inventario_stock
-FROM inventario i
-INNER JOIN talla t  ON i.talla_id = t.talla_id
-INNER JOIN color co ON i.color_id = co.color_id
-WHERE i.producto_id = @pid
-ORDER BY t.talla_id, co.color_id;
-
-SELECT SUM(inventario_stock) AS stock_total
-FROM inventario
-WHERE producto_id = @pid;
