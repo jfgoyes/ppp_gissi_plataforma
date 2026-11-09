@@ -165,7 +165,9 @@ const escAttr = (str = '') =>
 const resolverImagen = (url, nombreProducto = '') => {
   if (!url) {
     const texto = nombreProducto
-      ? encodeURIComponent(nombreProducto)
+      ? encodeURIComponent(
+          String(nombreProducto).replace(/\s+/g, ' ').trim().slice(0, 40)
+        )
       : 'GISSI';
     return `https://placehold.co/1200x800/1a1a1a/ffffff?text=${texto}`;
   }
@@ -415,22 +417,44 @@ const configurarAcciones = (p) => {
     }
   };
 
-  const waFallback = `https://wa.me/593993939058?text=${encodeURIComponent(
-    `Hola GISSI, me interesa el diseño "${p.producto_nombre}" (código ${p.producto_id}). ¿Me pueden dar más información?`
-  )}`;
-  btnWsp.href = waFallback;
+  // Payload unificado para WhatsApp
+  const productoParaWA = {
+    id:        p.producto_id,
+    nombre:    p.producto_nombre,
+    precio:    Number(p.producto_precio),
+    categoria: p.categoria_nombre
+  };
 
-  btnWsp.addEventListener('click', (e) => {
-    if (window.GissiCarrito && typeof window.GissiCarrito.consultarProducto === 'function') {
-      e.preventDefault();
-      window.GissiCarrito.consultarProducto({
-        id:        p.producto_id,
-        nombre:    p.producto_nombre,
-        precio:    Number(p.producto_precio),
-        categoria: p.categoria_nombre
-      });
+  // Plantilla coherente con la de carrito.js
+  const construirMensaje = () => {
+    if (window.GissiCarrito?.mensajeProducto) {
+      return window.GissiCarrito.mensajeProducto(productoParaWA);
     }
-  });
+    // Fallback mínimo alineado con el formato de carrito.js
+    return [
+      '¡Hola *Textiles Los Pastos*! 👋',
+      '',
+      'Me interesa este diseño:',
+      '',
+      `*${p.producto_nombre}*`,
+      `💰 Precio: *$${Number(p.producto_precio).toFixed(2)}* _referencial_`,
+      p.categoria_nombre ? `🏷️ Categoría: ${p.categoria_nombre}` : null,
+      `🔖 Código: \`#${p.producto_id}\``,
+      '',
+      '¿Me confirman disponibilidad, valor final y tiempo de entrega? 🙌'
+    ].filter(Boolean).join('\n');
+  };
+
+  btnWsp.href = `https://wa.me/593993939058?text=${encodeURIComponent(construirMensaje())}`;
+
+  // onclick (no addEventListener) → idempotente, no acumula listeners
+  btnWsp.onclick = (e) => {
+    if (window.GissiCarrito?.consultarProducto) {
+      e.preventDefault();
+      window.GissiCarrito.consultarProducto(productoParaWA);
+    }
+    // Si no hay carrito.js, el href ya lleva el mensaje correcto → no preventDefault
+  };
 };
 
 // ============================================================

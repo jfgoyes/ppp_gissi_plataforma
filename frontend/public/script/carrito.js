@@ -60,8 +60,8 @@ const formatearPedidoCarrito = (items, total) => {
   const cantidad = items.reduce((a, p) => a + (Number(p.cantidad) || 0), 0);
 
   const lineasProductos = items.map((p, i) => {
-    const precioUnit = Number(p.precio) || 0;
-    const cant       = Number(p.cantidad) || 0;
+    const precioUnit = Number.isFinite(Number(p.precio)) ? Number(p.precio) : 0;
+    const cant       = Number.isFinite(Number(p.cantidad)) ? Number(p.cantidad) : 0;
     const sub        = precioUnit * cant;
     return `${i + 1}. *${p.nombre}*\n    ${cant} × $${precioUnit.toFixed(2)} = *$${sub.toFixed(2)}*`;
   }).join('\n');

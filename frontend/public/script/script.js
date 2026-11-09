@@ -67,11 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------- 4. ENLACE ACTIVO POR URL ---------- */
-  const path = window.location.pathname.split('/').pop() || 'inicio.html';
+  const pathActual = (() => {
+    let p = (window.location.pathname.split('/').pop() || '').toLowerCase();
+    // Normalizar: '' o 'index.html' → 'inicio.html'
+    if (!p || p === 'index.html') p = 'inicio.html';
+    return p;
+  })();
+
   document.querySelectorAll('.main-nav a').forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === path) link.classList.add('active');
-    else link.classList.remove('active');
+    const href = (link.getAttribute('href') || '').toLowerCase();
+    link.classList.toggle('active', href === pathActual);
   });
 
   /* ---------- 5. CONTADORES ANIMADOS (Nosotros) ---------- */

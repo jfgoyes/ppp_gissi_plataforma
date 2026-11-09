@@ -22,8 +22,13 @@ const catalogCount   = document.getElementById('catalogCount');
 
 // Página actual: 'inicio' | 'catalogo' | 'proceso' | 'nosotros'
 const paginaActual = (() => {
-  const path = window.location.pathname.split('/').pop() || 'inicio.html';
-  return path.replace('.html', '') || 'inicio';
+  const path = (window.location.pathname.split('/').pop() || '').toLowerCase();
+  if (!path || path === 'index.html' || path === 'inicio.html') return 'inicio';
+  if (path === 'catalogo.html') return 'catalogo';
+  if (path === 'producto.html') return 'producto';
+  if (path === 'proceso.html')  return 'proceso';
+  if (path === 'nosotros.html') return 'nosotros';
+  return path.replace('.html', '');
 })();
 
 // ============================================================
@@ -59,6 +64,8 @@ function mostrarError(mensaje = 'No se pudieron cargar los diseños.') {
         <i class="fa-solid fa-rotate-right"></i> Reintentar
       </button>
     </div>`;
+  
+  if (catalogCount) catalogCount.textContent = '—';
 
   const btn = document.getElementById('btn-reintentar');
   if (btn) btn.addEventListener('click', inicializarCatalogo);
@@ -217,7 +224,9 @@ function crearTarjetaProducto(producto) {
     producto_precio,
     categoria_nombre,
     producto_destacado,
-    producto_imagen
+    producto_imagen,
+    producto_colores,
+    producto_tallas
   } = producto;
 
   const precio = `$${parseFloat(producto_precio).toFixed(2)}`;
@@ -251,6 +260,41 @@ function crearTarjetaProducto(producto) {
   );
   const waUrlFallback = `https://wa.me/${waNumero}?text=${waFallback}`;
 
+  // Tallas (chips)
+  const tallasHtml = producto_tallas
+    ? `<div class="card-meta">
+        <span class="card-meta__label"><i class="fa-solid fa-ruler"></i> Tallas:</span>
+        <div class="card-meta__chips">
+          ${producto_tallas.split(',').map(t =>
+            `<span class="card-chip">${escAttr(t.trim())}</span>`
+          ).join('')}
+        </div>
+      </div>`
+    : '';
+
+  // Colores (chips con punto de color)
+  const coloresHtml = producto_colores
+    ? `<div class="card-meta">
+        <span class="card-meta__label"><i class="fa-solid fa-palette"></i> Colores:</span>
+        <div class="card-meta__chips">
+          ${producto_colores.split(',').map(c =>
+            `<span class="card-chip">${escAttr(c.trim())}</span>`
+          ).join('')}
+        </div>
+      </div>`
+    : '';
+
+  // Fallback visual cuando falten datos
+  const sinDatosHtml = (!producto_tallas && !producto_colores)
+    ? `<div class="card-warn">
+        <i class="fa-solid fa-scissors"></i>
+        <div class="card-warn__body">
+          <strong>Fabricado bajo pedido:</strong>
+          <span>Personalizamos según tallas, colores, cantidades y acabados.</span>
+        </div>
+      </div>`
+    : '';
+
   return `
     <article class="catalog-item ${variant}" data-id="${producto_id}" data-category="${escAttr((categoria_nombre || '').toLowerCase())}">
       ${badge}
@@ -275,6 +319,9 @@ function crearTarjetaProducto(producto) {
       <div class="catalog-info">
         <h3>${producto_nombre}</h3>
         <p>${producto_descripcion || 'Ver diseño completo'}</p>
+        ${tallasHtml}
+        ${coloresHtml}
+        ${sinDatosHtml}
         <div class="catalog-footer">
           <div class="precio-referencial">
             <strong>${precio}</strong>
@@ -377,7 +424,7 @@ function aplicarFiltros() {
   const filtrados = productos.filter(p => {
     const coincideCategoria =
       categoria === 'all' ||
-      (p.categoria_nombre || '').toLowerCase() === categoria;
+      (p.categoria_nombre || '').toLowerCase() === decodeURIComponent(categoria);
     if (!coincideCategoria) return false;
 
     if (!texto) return true;
@@ -432,7 +479,7 @@ function generarFiltros(productos) {
   filterGroup.innerHTML = `
     <a class="filter active" href="#" data-category="all">Todos</a>
     ${categorias.map(c => `
-      <a class="filter" href="#" data-category="${c.toLowerCase()}">${c}</a>
+      <a class="filter" href="#" data-category="${encodeURIComponent(c.toLowerCase())}">${c}</a>
     `).join('')}`;
 
   filterGroup.querySelectorAll('.filter').forEach(btn => {
@@ -491,17 +538,25 @@ function configurarBuscador() {
     debounceId = setTimeout(() => {
       let valor = sanitizar(input.value);
 
-      // Truncar a MAX_LEN si se pegó texto muy largo
+      // Truncar a MAX_LEN
       if (valor.length > MAX_LEN) {
         valor = valor.slice(0, MAX_LEN);
         input.value = valor;
         mostrarErrorBusqueda(`Máximo ${MAX_LEN} caracteres.`);
-      } else if (valor.length > 0 && valor.length < MIN_LEN) {
-        mostrarErrorBusqueda(`Escribe al menos ${MIN_LEN} caracteres.`);
-        // No aplicamos filtro todavía: dejamos visible el estado actual
-        return;
       } else {
         mostrarErrorBusqueda('');
+      }
+
+      // Si hay 1 carácter: no filtramos, pero SÍ reflejamos estado
+      // (así el contador y el botón "Limpiar" se mantienen coherentes)
+      if (valor.length > 0 && valor.length < MIN_LEN) {
+        mostrarErrorBusqueda(`Escribe al menos ${MIN_LEN} caracteres.`);
+        // Aplicamos filtro con el texto parcial → mostrará "sin resultados"
+        // O mejor: NO filtrar y dejar todo visible (recomendado UX)
+        estadoFiltros.busqueda = '';      // ← clave: no arrastramos valor previo
+        if (btnClear) btnClear.hidden = false;
+        aplicarFiltros();
+        return;
       }
 
       estadoFiltros.busqueda = valor;
@@ -569,7 +624,7 @@ async function inicializarCatalogo() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log(`app.js cargado · página: ${paginaActual}`);
-  if (paginaActual === 'inicio' || paginaActual === 'catalogo') {
+  if (['inicio', 'catalogo', 'index'].includes(paginaActual)) {
     inicializarCatalogo();
   }
 });

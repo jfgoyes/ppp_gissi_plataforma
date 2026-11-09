@@ -21,6 +21,15 @@ const SUBQUERY_COLORES = `
    WHERE i.producto_id = p.producto_id) AS producto_colores
 `;
 
+// Subconsulta reutilizable para traer las tallas únicas del producto
+// (vía inventario → talla), concatenadas para búsqueda por texto.
+const SUBQUERY_TALLAS = `
+  (SELECT GROUP_CONCAT(DISTINCT t.talla_nombre ORDER BY t.talla_id SEPARATOR ', ')
+   FROM inventario i
+   INNER JOIN talla t ON i.talla_id = t.talla_id
+   WHERE i.producto_id = p.producto_id) AS producto_tallas
+`;
+
 const ProductoModel = {
 
   obtenerTodos: async () => {
@@ -29,7 +38,8 @@ const ProductoModel = {
              p.producto_precio, p.categoria_id, c.categoria_nombre,
              p.producto_destacado,
              ${SUBQUERY_IMAGEN_PRINCIPAL},
-             ${SUBQUERY_COLORES}
+             ${SUBQUERY_COLORES},
+             ${SUBQUERY_TALLAS}
       FROM producto p
       INNER JOIN categoria c ON p.categoria_id = c.categoria_id
       ORDER BY p.producto_id ASC
@@ -43,7 +53,8 @@ const ProductoModel = {
              p.producto_precio, p.categoria_id, c.categoria_nombre,
              p.producto_destacado,
              ${SUBQUERY_IMAGEN_PRINCIPAL},
-             ${SUBQUERY_COLORES}
+             ${SUBQUERY_COLORES},
+             ${SUBQUERY_TALLAS}
       FROM producto p
       INNER JOIN categoria c ON p.categoria_id = c.categoria_id
       WHERE p.producto_id = ?
@@ -57,7 +68,8 @@ const ProductoModel = {
              p.producto_precio, p.categoria_id, c.categoria_nombre,
              p.producto_destacado,
              ${SUBQUERY_IMAGEN_PRINCIPAL},
-             ${SUBQUERY_COLORES}
+             ${SUBQUERY_COLORES},
+             ${SUBQUERY_TALLAS}
       FROM producto p
       INNER JOIN categoria c ON p.categoria_id = c.categoria_id
       WHERE p.producto_destacado = TRUE
