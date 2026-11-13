@@ -35,6 +35,18 @@ async function probarConexion() {
       console.log(`  - ${fila.producto_nombre} (${fila.categoria_nombre}): $${fila.producto_precio}`);
     });
 
+    // Prueba 5: EXPLAIN de la consulta principal de productos
+    const [explain] = await pool.query(`
+      EXPLAIN SELECT p.producto_id, p.producto_nombre, p.producto_precio
+      FROM producto p
+      INNER JOIN categoria c ON p.categoria_id = c.categoria_id
+      ORDER BY p.producto_id ASC
+    `);
+    console.log('Prueba 5 - Plan de ejecución (EXPLAIN):');
+    explain.forEach(fila => {
+      console.log(`  - tabla=${fila.table} tipo=${fila.type} key=${fila.key || 'NULL'} filas=${fila.rows}`);
+    });
+
     console.log('========================================');
     console.log('Todas las pruebas fueron exitosas');
     console.log('========================================');

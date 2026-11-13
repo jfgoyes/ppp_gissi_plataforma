@@ -230,6 +230,24 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 -- ------------------------------------------------------------
+-- Índice 6: idx_producto_nombre
+-- Acelera: búsquedas por texto (LIKE 'x%') y ORDER BY nombre
+-- ------------------------------------------------------------
+SET @idx_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = 'gissi_plataforma_db'
+    AND table_name   = 'producto'
+    AND index_name   = 'idx_producto_nombre'
+);
+SET @sql := IF(@idx_exists = 0,
+  'CREATE INDEX idx_producto_nombre ON producto (producto_nombre)',
+  'SELECT ''idx_producto_nombre ya existe'' AS info'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
 -- Verificación de índices creados
 -- ------------------------------------------------------------
 SELECT table_name, index_name, column_name
@@ -372,26 +390,52 @@ INNER JOIN talla t     ON i.talla_id = t.talla_id
 INNER JOIN color co    ON i.color_id = co.color_id
 ORDER BY p.producto_nombre, t.talla_nombre, co.color_nombre;
 
--- Detalle de un pedido con la variante exacta vendida
-SELECT
-    dp.detalle_pedido_id,
-    p.producto_nombre,
-    t.talla_nombre,
-    co.color_nombre,
-    dp.detalle_pedido_cantidad,
-    dp.detalle_pedido_precio_unitario,
-    (dp.detalle_pedido_cantidad * dp.detalle_pedido_precio_unitario) AS subtotal
-FROM detalle_pedido dp
-INNER JOIN inventario i ON dp.inventario_id = i.inventario_id
-INNER JOIN producto p   ON i.producto_id = p.producto_id
-INNER JOIN talla t      ON i.talla_id = t.talla_id
-INNER JOIN color co     ON i.color_id = co.color_id
-WHERE dp.pedido_id = 1;
-
 -- Verificar productos destacados
 SELECT producto_id, producto_nombre, producto_destacado 
 FROM producto 
 WHERE producto_destacado = TRUE;
+
+-- Conteo de productos por categoría (debe sumar el total de productos)
+SELECT
+    c.categoria_id,
+    c.categoria_nombre,
+    COUNT(p.producto_id) AS total_productos
+FROM categoria c
+LEFT JOIN producto p ON p.categoria_id = c.categoria_id
+GROUP BY c.categoria_id, c.categoria_nombre
+ORDER BY c.categoria_id ASC;
+
+-- Productos sin categoría asignada (debe devolver 0 filas)
+SELECT producto_id, producto_nombre
+FROM producto
+WHERE categoria_id IS NULL;
+
+-- Productos con categoria_id inválido (debe devolver 0 filas)
+SELECT p.producto_id, p.producto_nombre, p.categoria_id
+FROM producto p
+LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
+WHERE p.categoria_id IS NOT NULL AND c.categoria_id IS NULL;
+
+-- Listado completo: producto + categoría (para revisión manual)
+SELECT
+    p.producto_id,
+    p.producto_nombre,
+    c.categoria_nombre,
+    p.producto_precio,
+    p.producto_destacado
+FROM producto p
+INNER JOIN categoria c ON p.categoria_id = c.categoria_id
+ORDER BY c.categoria_nombre, p.producto_nombre;
+
+-- Productos destacados por categoría
+SELECT
+    c.categoria_nombre,
+    COUNT(p.producto_id) AS destacados
+FROM producto p
+INNER JOIN categoria c ON p.categoria_id = c.categoria_id
+WHERE p.producto_destacado = TRUE
+GROUP BY c.categoria_nombre
+ORDER BY c.categoria_nombre;
 
 -- ============================================================
 -- Borrar todas las tablas

@@ -1,0 +1,531 @@
+{
+  "info": {
+    "_postman_id": "a6964182-1872-4976-8c31-cc38a4445de7",
+    "name": "Gissi API - Endpoints GET",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40212976"
+  },
+  "item": [
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Listar productos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Producto por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "item": [
+        {
+          "name": "Listar categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categorias",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categorias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categoría por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categorias/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categorias",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tallas",
+      "item": [
+        {
+          "name": "Listar tallas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tallas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tallas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Talla por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tallas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tallas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Colores",
+      "item": [
+        {
+          "name": "Listar colores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/colores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "colores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Color por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/colores/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "colores",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cliente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Validaciones",
+      "item": [
+        {
+          "name": "GET",
+          "item": [
+            {
+              "name": "400 - ID no numérico",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/productos/abc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos",
+                    "abc"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "400 - ID negativo",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/productos/-5",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos",
+                    "-5"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "404 - Producto no encontrado",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/productos/999",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos",
+                    "999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "404 - Ruta no encontrada",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/inexistente",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "inexistente"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "200 - Caso correcto",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/productos/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "POST",
+          "item": [
+            {
+              "name": "201 - Insertar producto",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \"producto_nombre\": \"Camiseta\", \"producto_precio\": 25, \"categoria_id\": 1 }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/productos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "400 - Sin producto_nombre",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \"producto_precio\": 25, \"categoria_id\": 1 }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/productos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "400 - Precio inválido",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \"producto_nombre\": \"Camiseta3\", \"producto_precio\": -5, \"categoria_id\": 1 }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/productos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "400 - Categoría inválida",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \"producto_nombre\": \"Camiseta4\", \"producto_precio\": 25, \"categoria_id\": \"abc\" }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/productos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "productos"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Imágenes",
+      "item": [
+        {
+          "name": "Consultar imágenes de un producto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/1/detalle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1",
+                "detalle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Insertar imágenes a un producto",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "imagen",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/productos/1/imagenes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1",
+                "imagenes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar imágenes de un producto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/1/imagenes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1",
+                "imagenes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Verificar funcionamiento",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

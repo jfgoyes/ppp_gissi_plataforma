@@ -375,7 +375,7 @@ const renderInfo = (p) => {
     <small>precio referencial · el valor final se confirma al cotizar</small>`;
 
   elDescripcion.textContent =
-    p.producto_descripcion || 'Prenda personalizable de la colección GISSI.';
+    p.producto_descripcion || 'Prenda personalizable bajo pedido.';
 
   badge.hidden = !p.producto_destacado;
   if (!badge.hidden) badge.textContent = '⭐ Diseño destacado';

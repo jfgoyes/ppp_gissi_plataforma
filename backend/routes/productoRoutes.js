@@ -3,12 +3,13 @@ const router  = express.Router();
 
 const ProductoController = require('../controllers/productoController');
 const upload             = require('../config/multer');
+const cacheMiddleware = require('../middlewares/cache');
 
 // ============================================================
 // Productos
 // ============================================================
-router.get('/',              ProductoController.listar);
-router.get('/destacados',    ProductoController.listarDestacados);
+router.get('/',            cacheMiddleware(60), ProductoController.listar);
+router.get('/destacados',  cacheMiddleware(120), ProductoController.listarDestacados);
 router.get('/:id',           ProductoController.obtenerPorId);
 router.get('/:id/detalle',   ProductoController.obtenerConImagenes);   // con galería
 router.post('/',             upload.single('imagen'), ProductoController.crear);

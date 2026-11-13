@@ -20,6 +20,8 @@ const catalogoEstado = document.getElementById('catalogo-estado');
 const filterGroup    = document.getElementById('filter-group');
 const catalogCount   = document.getElementById('catalogCount');
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Página actual: 'inicio' | 'catalogo' | 'proceso' | 'nosotros'
 const paginaActual = (() => {
   const path = (window.location.pathname.split('/').pop() || '').toLowerCase();
@@ -149,21 +151,27 @@ function actualizarBotonLimpiar() {
 }
 
 // ============================================================
-// 3. FETCH (sin delay artificial)
+// 3. FETCH (con delay artificail)
 // ============================================================
 async function obtenerProductos() {
-  const res = await fetch(`${API_URL}/productos`);
+  const t0 = performance.now();
+  await delay(1000); // Delay artificial
+  const res = await fetch(`${API_URL}/productos`, { cache: 'default' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   if (!data || !Array.isArray(data.data)) throw new Error('Respuesta inválida');
+  console.log(`GET /productos → ${(performance.now() - t0).toFixed(1)} ms`);
   return data.data;
 }
 
 async function obtenerDestacados() {
-  const res = await fetch(`${API_URL}/productos/destacados`);
+  const t0 = performance.now();
+  await delay(1000); // Delay artificial
+  const res = await fetch(`${API_URL}/productos/destacados`, { cache: 'default' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   if (!data || !Array.isArray(data.data)) throw new Error('Respuesta inválida');
+  console.log(`GET /productos/destacados → ${(performance.now() - t0).toFixed(1)} ms`);
   return data.data;
 }
 
@@ -318,7 +326,7 @@ function crearTarjetaProducto(producto) {
       </div>
       <div class="catalog-info">
         <h3>${producto_nombre}</h3>
-        <p>${producto_descripcion || 'Ver diseño completo'}</p>
+        <p>${producto_descripcion || 'Prenda personalizable bajo pedido.'}</p>
         ${tallasHtml}
         ${coloresHtml}
         ${sinDatosHtml}
@@ -424,7 +432,7 @@ function aplicarFiltros() {
   const filtrados = productos.filter(p => {
     const coincideCategoria =
       categoria === 'all' ||
-      (p.categoria_nombre || '').toLowerCase() === decodeURIComponent(categoria);
+      (p.categoria_nombre || '').toLowerCase() === categoria;
     if (!coincideCategoria) return false;
 
     if (!texto) return true;
@@ -478,9 +486,10 @@ function generarFiltros(productos) {
 
   filterGroup.innerHTML = `
     <a class="filter active" href="#" data-category="all">Todos</a>
-    ${categorias.map(c => `
-      <a class="filter" href="#" data-category="${encodeURIComponent(c.toLowerCase())}">${c}</a>
-    `).join('')}`;
+    ${categorias.map(c => {
+      const valor = c.toLowerCase();
+      return `<a class="filter" href="#" data-category="${escAttr(valor)}">${escAttr(c)}</a>`;
+    }).join('')}`;
 
   filterGroup.querySelectorAll('.filter').forEach(btn => {
     btn.addEventListener('click', (e) => {

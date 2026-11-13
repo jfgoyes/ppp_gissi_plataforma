@@ -77,6 +77,29 @@ app.get('/', (req, res) => {
   });
 });
 
+// Endpoint de salud para verificar BD y estado del sistema
+app.get('/api/health', async (req, res) => {
+  const pool = require('./config/database');
+  try {
+    const [rows] = await pool.query('SELECT 1 AS ok');
+    res.json({
+      ok: true,
+      servicio: 'Gissi API',
+      version: '1.0.0',
+      bd: rows[0].ok === 1 ? 'conectada' : 'sin respuesta',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      servicio: 'Gissi API',
+      bd: 'error',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // ============================================================
 // Manejo de errores
 // ============================================================

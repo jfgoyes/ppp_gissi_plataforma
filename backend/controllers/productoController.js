@@ -5,7 +5,21 @@ const ProductoModel       = require('../models/productoModel');
 const ProductoImagenModel = require('../models/productoImagenModel');
 const ApiError            = require('../utils/ApiError');
 const validarId           = require('../utils/validarId');
+const validarTexto        = require('../utils/validarTexto');
+const { sanitizarObjeto, sanitizarString } = require('../utils/sanitizar');
 const { optimizarImagen } = require('../config/imagenOptimizer');
+
+// ============================================================
+// Valida que una URL de imagen sea segura.
+// Acepta solo http(s):// o rutas locales /uploads/...
+// Rechaza javascript:, data:, file:, vbscript:, etc.
+// ============================================================
+const esUrlImagenSegura = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  const limpia = url.trim();
+  if (limpia.startsWith('/uploads/')) return true;
+  return /^https?:\/\//i.test(limpia);
+};
 
 // ============================================================
 // Helper: elimina del disco TODAS las variantes WebP generadas
@@ -20,19 +34,13 @@ const borrarVariantesDeImagen = async (productoImagenUrl) => {
 
   const uploadsDir = path.join(__dirname, '..', 'uploads');
 
-  // 1) Quitar extensión → "producto-123-456-md"
-  // 2) Quitar sufijo de variante → "producto-123-456"
   let baseName = path.basename(productoImagenUrl, path.extname(productoImagenUrl));
   baseName = baseName.replace(/-(sm|md|lg)$/, '');
 
-  // Candidatos a borrar:
-  //  - Las 3 variantes WebP (siempre existen para subidas nuevas)
-  //  - Los formatos originales (por compatibilidad con subidas previas)
   const candidatos = [
     `${baseName}-sm.webp`,
     `${baseName}-md.webp`,
     `${baseName}-lg.webp`,
-    // Compatibilidad con archivos antiguos (antes del cambio)
     `${baseName}.jpg`,
     `${baseName}.jpeg`,
     `${baseName}.png`,
@@ -46,14 +54,12 @@ const borrarVariantesDeImagen = async (productoImagenUrl) => {
         await fs.promises.unlink(ruta);
         return { nombre, borrado: true };
       } catch (err) {
-        // ENOENT: el archivo no existía → no es un error real
         if (err.code === 'ENOENT') return { nombre, borrado: false, motivo: 'no existía' };
         return { nombre, borrado: false, motivo: err.message };
       }
     })
   );
 
-  // Log en dev para ver qué se intenta borrar (útil para depurar)
   if (process.env.NODE_ENV !== 'production') {
     const borrados = resultados.filter(r => r.borrado).map(r => r.nombre);
     if (borrados.length > 0) {
@@ -63,10 +69,6 @@ const borrarVariantesDeImagen = async (productoImagenUrl) => {
 };
 
 const ProductoController = {
-
-  // ============================================================
-  // PRODUCTOS
-  // ============================================================
 
   listar: async (req, res, next) => {
     try {
@@ -112,15 +114,10 @@ const ProductoController = {
     }
   },
 
-  /**
-   * Crear producto.
-   * Acepta multipart/form-data:
-   *  - campo "imagen"               → archivo subido (se optimiza a WebP)
-   *  - campo "producto_imagen_url"  → URL externa
-   * Se pueden enviar AMBOS y se guardan como 2 imágenes.
-   */
   crear: async (req, res, next) => {
     try {
+      const bodyLimpio = sanitizarObjeto(req.body, 500);
+
       const {
         producto_nombre,
         producto_descripcion,
@@ -128,36 +125,65 @@ const ProductoController = {
         categoria_id,
         producto_destacado,
         producto_imagen_url
-      } = req.body;
+      } = bodyLimpio;
 
-      if (!producto_nombre || !producto_precio) {
+      if (!producto_nombre || producto_precio === undefined || producto_precio === null || producto_precio === '') {
         if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
         throw new ApiError(400, 'Nombre y precio son obligatorios');
       }
 
-      // 1) Crear el producto (SIN imágenes)
-      const productoId = await ProductoModel.crear({
-        producto_nombre,
-        producto_descripcion: producto_descripcion || null,
-        producto_precio,
-        categoria_id: categoria_id || null,
-        producto_destacado: producto_destacado === 'true' || producto_destacado === true
+      const nombreLimpio = validarTexto(producto_nombre, {
+        campo: 'producto_nombre',
+        min: 2,
+        max: 300
       });
 
-      // 2) Registrar imágenes (si las hay)
+      const descripcionLimpia = (producto_descripcion === undefined || producto_descripcion === null || producto_descripcion === '')
+        ? null
+        : validarTexto(producto_descripcion, {
+            campo: 'producto_descripcion',
+            requerido: false,
+            max: 300
+          });
+
+      const precioNum = Number(producto_precio);
+      if (!Number.isFinite(precioNum) || precioNum <= 0) {
+        if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
+        throw new ApiError(400, 'El precio debe ser un número positivo');
+      }
+
+      let categoriaId = null;
+      if (categoria_id !== undefined && categoria_id !== null && categoria_id !== '') {
+        categoriaId = validarId(categoria_id);
+      }
+
+      let urlExternaValida = null;
+      if (producto_imagen_url && String(producto_imagen_url).trim()) {
+        const candidata = String(producto_imagen_url).trim();
+        if (!esUrlImagenSegura(candidata)) {
+          if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
+          throw new ApiError(400, 'La URL de imagen no es válida (solo http(s):// o /uploads/)');
+        }
+        urlExternaValida = candidata;
+      }
+
+      const productoId = await ProductoModel.crear({
+        producto_nombre:      nombreLimpio,
+        producto_descripcion: descripcionLimpia,
+        producto_precio:      precioNum,
+        categoria_id:         categoriaId,
+        producto_destacado:   producto_destacado === 'true' || producto_destacado === true
+      });
+
       const imagenesRegistradas = [];
 
-      // 2a) Archivo subido → optimizar y guardar variante "md" (800px) como principal
       if (req.file) {
-        let urlOptimizada = `/uploads/${req.file.filename}`; // fallback si sharp falla
+        let urlOptimizada = `/uploads/${req.file.filename}`;
 
         try {
           const variantes = await optimizarImagen(req.file);
-          // Preferimos la variante "md" (800px WebP) como URL pública.
-          // El frontend usará srcset para elegir sm/md/lg según viewport.
           urlOptimizada = variantes.md || urlOptimizada;
         } catch (sharpError) {
-          // Si la optimización falla, NO abortamos: guardamos el original.
           console.warn(
             'Optimización de imagen falló, se usará el original:',
             sharpError.message
@@ -165,25 +191,24 @@ const ProductoController = {
         }
 
         const id = await ProductoImagenModel.crear({
-          producto_id: productoId,
-          producto_imagen_url: urlOptimizada,
-          producto_imagen_alt: producto_nombre,
-          producto_imagen_orden: 0,
+          producto_id:              productoId,
+          producto_imagen_url:      urlOptimizada,
+          producto_imagen_alt:      nombreLimpio,
+          producto_imagen_orden:    0,
           producto_imagen_principal: true,
-          producto_imagen_origen: 'upload'
+          producto_imagen_origen:   'upload'
         });
         imagenesRegistradas.push({ producto_imagen_id: id, origen: 'upload' });
       }
 
-      // 2b) URL externa → segunda imagen (o principal si no hay archivo)
-      if (producto_imagen_url && producto_imagen_url.trim()) {
+      if (urlExternaValida) {
         const id = await ProductoImagenModel.crear({
-          producto_id: productoId,
-          producto_imagen_url: producto_imagen_url.trim(),
-          producto_imagen_alt: producto_nombre,
-          producto_imagen_orden: imagenesRegistradas.length,
+          producto_id:              productoId,
+          producto_imagen_url:      urlExternaValida,
+          producto_imagen_alt:      nombreLimpio,
+          producto_imagen_orden:    imagenesRegistradas.length,
           producto_imagen_principal: imagenesRegistradas.length === 0,
-          producto_imagen_origen: 'url'
+          producto_imagen_origen:   'url'
         });
         imagenesRegistradas.push({ producto_imagen_id: id, origen: 'url' });
       }
@@ -203,23 +228,54 @@ const ProductoController = {
   actualizar: async (req, res, next) => {
     try {
       const id = validarId(req.params.id);
+
+      const bodyLimpio = sanitizarObjeto(req.body, 500);
+
       const {
         producto_nombre,
         producto_descripcion,
         producto_precio,
         categoria_id,
         producto_destacado
-      } = req.body;
+      } = bodyLimpio;
+
+      if (!producto_nombre || producto_precio === undefined || producto_precio === null || producto_precio === '') {
+        throw new ApiError(400, 'Nombre y precio son obligatorios');
+      }
 
       const actual = await ProductoModel.obtenerPorId(id);
       if (!actual) throw new ApiError(404, `No se encontró un producto con ID ${id}`);
 
+      const nombreLimpio = validarTexto(producto_nombre, {
+        campo: 'producto_nombre',
+        min: 2,
+        max: 300
+      });
+
+      const descripcionLimpia = (producto_descripcion === undefined || producto_descripcion === null || producto_descripcion === '')
+        ? null
+        : validarTexto(producto_descripcion, {
+            campo: 'producto_descripcion',
+            requerido: false,
+            max: 300
+          });
+
+      const precioNum = Number(producto_precio);
+      if (!Number.isFinite(precioNum) || precioNum <= 0) {
+        throw new ApiError(400, 'El precio debe ser un número positivo');
+      }
+
+      let categoriaId = null;
+      if (categoria_id !== undefined && categoria_id !== null && categoria_id !== '') {
+        categoriaId = validarId(categoria_id);
+      }
+
       const filas = await ProductoModel.actualizar(id, {
-        producto_nombre,
-        producto_descripcion,
-        producto_precio,
-        categoria_id,
-        producto_destacado: producto_destacado === 'true' || producto_destacado === true
+        producto_nombre:      nombreLimpio,
+        producto_descripcion: descripcionLimpia,
+        producto_precio:      precioNum,
+        categoria_id:         categoriaId,
+        producto_destacado:   producto_destacado === 'true' || producto_destacado === true
       });
 
       res.json({ ok: true, actualizados: filas });
@@ -228,10 +284,6 @@ const ProductoController = {
       next(error.statusCode ? error : new ApiError(500, 'Error al actualizar el producto'));
     }
   },
-
-  // ============================================================
-  // IMÁGENES DEL PRODUCTO
-  // ============================================================
 
   listarImagenes: async (req, res, next) => {
     try {
@@ -247,7 +299,9 @@ const ProductoController = {
   agregarImagen: async (req, res, next) => {
     try {
       const productoId = validarId(req.params.id);
-      const { producto_imagen_url, producto_imagen_principal } = req.body;
+
+      const bodyLimpio = sanitizarObjeto(req.body, 500);
+      const { producto_imagen_url, producto_imagen_principal } = bodyLimpio;
 
       const producto = await ProductoModel.obtenerPorId(productoId);
       if (!producto) {
@@ -259,12 +313,21 @@ const ProductoController = {
         throw new ApiError(400, 'Debes enviar un archivo o una URL de imagen');
       }
 
+      let urlExterna = null;
+      if (!req.file && producto_imagen_url) {
+        const candidata = sanitizarString(producto_imagen_url, 500).trim();
+        if (!esUrlImagenSegura(candidata)) {
+          throw new ApiError(400, 'La URL de imagen no es válida (solo http(s):// o /uploads/)');
+        }
+        urlExterna = candidata;
+      }
+
       const totalActual = await ProductoImagenModel.contarPorProducto(productoId);
       const esPrimera   = totalActual === 0;
 
       let url;
       if (req.file) {
-        url = `/uploads/${req.file.filename}`; // fallback
+        url = `/uploads/${req.file.filename}`;
         try {
           const variantes = await optimizarImagen(req.file);
           url = variantes.md || url;
@@ -275,7 +338,7 @@ const ProductoController = {
           );
         }
       } else {
-        url = producto_imagen_url.trim();
+        url = urlExterna;
       }
 
       const imagenId = await ProductoImagenModel.crear({
@@ -303,11 +366,6 @@ const ProductoController = {
     }
   },
 
-  /**
-   * Eliminar una imagen del producto.
-   * Borra del disco las 3 variantes WebP (y, por compatibilidad,
-   * cualquier original .jpg/.png/.webp de imágenes antiguas).
-   */
   eliminarImagen: async (req, res, next) => {
     try {
       const productoId = validarId(req.params.id);
@@ -318,10 +376,8 @@ const ProductoController = {
         throw new ApiError(404, 'Imagen no encontrada para este producto');
       }
 
-      // Si es archivo local, borrar del disco todas las variantes
       if (imagen.producto_imagen_origen === 'upload' &&
           imagen.producto_imagen_url.startsWith('/uploads/')) {
-        // No esperamos: el borrado físico no debe bloquear la respuesta HTTP
         borrarVariantesDeImagen(imagen.producto_imagen_url).catch(err => {
           console.warn('No se pudieron borrar variantes físicas:', err.message);
         });
