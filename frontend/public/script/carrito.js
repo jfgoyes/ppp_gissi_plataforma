@@ -37,12 +37,6 @@ const formatearConsultaProducto = (producto) => {
     categoria ? `🏷️ Categoría: ${categoria}` : null,
     `🔖 Código: \`#${codigo}\``,
     ``,
-    `📐 Datos para cotizar:`,
-    `• Tallas que necesito:`,
-    `• Colores / combinación:`,
-    `• Cantidad aproximada:`,
-    `• Personalización (escudo, nombres, números):`,
-    ``,
     `¿Me confirman *disponibilidad*, *valor final* y *tiempo de entrega*? 🙌`
   ].filter(l => l !== null);
 
@@ -80,15 +74,7 @@ const formatearPedidoCarrito = (items, total) => {
     ``,
     `_El valor final se confirma al cotizar según tallas, cantidades y personalización._`,
     ``,
-    `Para preparar la cotización:`,
-    `• Tallas por diseño:`,
-    `• Colores / combinación:`,
-    `• Personalización (escudo, nombres, números):`,
-    `• Fecha deseada de entrega:`,
-    ``,
-    `¿Me envían la *cotización* y el *tiempo de confección*? 🙌`,
-    ``,
-    `¡Gracias por elegir Textiles Los Pastos! ⚽`
+    `¿Me confirman *disponibilidad*, *valor final* y *tiempo de entrega*? 🙌`
   ].join('\n');
 };
 
